@@ -6,9 +6,14 @@ namespace cyber_arena.Controllers;
 
 public class HomeController : Controller
 {
+    /// <summary>
+    /// Redirects root URL to the login page.
+    /// TODO: When ASP.NET Core Identity is connected, redirect to Dashboard if already authenticated.
+    /// Example: if (User.Identity?.IsAuthenticated == true) return RedirectToAction("Index", "Dashboard");
+    /// </summary>
     public IActionResult Index()
     {
-        return View();
+        return RedirectToAction("Login", "Account");
     }
 
     public IActionResult Privacy()

@@ -1,50 +1,94 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - cyber_arena</title>
-    <script type="importmap"></script>
+    <meta name="description" content="CyberArena — Capture The Flag Management Platform" />
+    <title>@ViewData["Title"] — CyberArena</title>
+
+    @* ── Preconnect for Google Fonts ───────────────────────── *@
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    @* ── Bootstrap 5 ──────────────────────────────────────── *@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+
+    @* ── Font Awesome 6 (CDN) ─────────────────────────────── *@
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+          integrity="sha512-Avb2QiuDEEvB4bZJYdft2mNjVShBftLdPG8FJ0V7irTLQ8Uo0qcPxh4Plq7G5tGm0rU+1SPhVotteLpBERwTkw=="
+          crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    @* ── CyberArena Styles ─────────────────────────────────── *@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/cyber_arena.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/cyber-arena.css" asp-append-version="true" />
+
+    @* ── Per-page styles ──────────────────────────────────── *@
+    @await RenderSectionAsync("Styles", required: false)
 </head>
-<body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">cyber_arena</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                    </ul>
+<body class="ca-app">
+
+    @* ── Sidebar ──────────────────────────────────────────── *@
+    @await Html.PartialAsync("_Sidebar")
+
+    @* ── Page Wrapper ─────────────────────────────────────── *@
+    <div class="d-flex flex-column" style="flex:1;min-width:0;">
+
+        @* ── Topbar ───────────────────────────────────────── *@
+        @await Html.PartialAsync("_Topbar")
+
+        @* ── Main Content ─────────────────────────────────── *@
+        <main class="ca-main" id="main-content" role="main">
+
+            @* Demo mode banner *@
+            @if (TempData["DemoMode"] != null)
+            {
+                <div class="alert alert-info ca-auto-dismiss mb-3 d-flex align-items-center gap-2" role="alert">
+                    <i class="fas fa-circle-info fa-fw" aria-hidden="true"></i>
+                    <span>
+                        <strong>Demo Mode:</strong> Running with mock data.
+                        Connect ASP.NET Core Identity to enable real authentication.
+                    </span>
                 </div>
-            </div>
-        </nav>
-    </header>
-    <div class="container">
-        <main role="main" class="pb-3">
+            }
+
+            @* Profile saved flash *@
+            @if (TempData["ProfileSaved"] != null)
+            {
+                <div class="alert alert-success ca-auto-dismiss mb-3 d-flex align-items-center gap-2" role="alert">
+                    <i class="fas fa-circle-check fa-fw" aria-hidden="true"></i>
+                    <span>Profile updated successfully.</span>
+                </div>
+            }
+
+            @* Password changed flash *@
+            @if (TempData["PasswordChanged"] != null)
+            {
+                <div class="alert alert-success ca-auto-dismiss mb-3 d-flex align-items-center gap-2" role="alert">
+                    <i class="fas fa-circle-check fa-fw" aria-hidden="true"></i>
+                    <span>Password changed successfully.</span>
+                </div>
+            }
+
+            @* Admin action flash *@
+            @if (TempData["AdminSuccess"] != null)
+            {
+                <div class="alert alert-success ca-auto-dismiss mb-3 d-flex align-items-center gap-2" role="alert">
+                    <i class="fas fa-circle-check fa-fw" aria-hidden="true"></i>
+                    <span>@TempData["AdminSuccess"]</span>
+                </div>
+            }
+
             @RenderBody()
         </main>
+
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2026 - cyber_arena - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-        </div>
-    </footer>
+    @* ── Scripts ──────────────────────────────────────────── *@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/cyber-arena.js" asp-append-version="true"></script>
+
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

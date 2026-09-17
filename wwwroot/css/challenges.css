@@ -1,0 +1,887 @@
+/* ============================================================
+   CyberArena — Challenge System Styles (Part 2)
+   Additive only — no overrides to Part 1 CSS
+   ============================================================ */
+
+/* ─── Challenge Page Header ──────────────────────────────── */
+.ch-page-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 1.5rem;
+}
+
+.ch-page-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.45rem;
+    font-weight: 700;
+    color: var(--ca-text-primary);
+    margin: 0 0 0.2rem;
+}
+
+.ch-page-subtitle {
+    font-size: 0.875rem;
+    color: var(--ca-text-muted);
+    margin: 0;
+}
+
+/* ─── Filter / Search Bar ────────────────────────────────── */
+.ch-toolbar {
+    background: var(--ca-bg-card);
+    border: 1px solid var(--ca-border);
+    border-radius: var(--ca-radius-lg);
+    padding: 1rem 1.25rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.ch-search-wrap {
+    position: relative;
+    flex: 1;
+    min-width: 200px;
+}
+.ch-search-wrap .ch-search-icon {
+    position: absolute;
+    left: 0.85rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--ca-text-muted);
+    font-size: 0.85rem;
+    pointer-events: none;
+}
+.ch-search-input {
+    width: 100%;
+    background: var(--ca-bg-base);
+    border: 1px solid var(--ca-border);
+    color: var(--ca-text-primary);
+    border-radius: var(--ca-radius);
+    padding: 0.55rem 0.9rem 0.55rem 2.4rem;
+    font-size: 0.875rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+.ch-search-input::placeholder { color: var(--ca-text-muted); }
+.ch-search-input:focus {
+    outline: none;
+    border-color: var(--ca-accent);
+    box-shadow: 0 0 0 3px var(--ca-accent-glow);
+    background: var(--ca-bg-base);
+    color: var(--ca-text-primary);
+}
+
+.ch-filter-group {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+}
+
+.ch-filter-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--ca-text-muted);
+    white-space: nowrap;
+    margin-right: 0.2rem;
+}
+
+/* Filter Pills */
+.ch-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.32rem 0.75rem;
+    border-radius: 99px;
+    font-size: 0.78rem;
+    font-weight: 500;
+    border: 1px solid var(--ca-border);
+    background: transparent;
+    color: var(--ca-text-muted);
+    cursor: pointer;
+    transition: all 0.18s;
+    white-space: nowrap;
+    user-select: none;
+}
+.ch-pill:hover {
+    border-color: var(--ca-accent);
+    color: var(--ca-accent);
+    background: var(--ca-accent-light);
+}
+.ch-pill.active {
+    background: var(--ca-accent);
+    border-color: var(--ca-accent);
+    color: #fff;
+    font-weight: 600;
+}
+.ch-pill.all.active  { background: var(--ca-accent); border-color: var(--ca-accent); }
+.ch-pill.easy.active  { background: var(--ca-success); border-color: var(--ca-success); }
+.ch-pill.medium.active{ background: var(--ca-warning); border-color: var(--ca-warning); }
+.ch-pill.hard.active  { background: var(--ca-danger);  border-color: var(--ca-danger);  }
+
+.ch-toolbar-divider {
+    width: 1px;
+    height: 24px;
+    background: var(--ca-border);
+    flex-shrink: 0;
+}
+
+/* View toggle */
+.ch-view-toggle {
+    display: flex;
+    gap: 0.3rem;
+}
+.ch-view-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--ca-radius-sm);
+    border: 1px solid var(--ca-border);
+    background: transparent;
+    color: var(--ca-text-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: all 0.18s;
+}
+.ch-view-btn.active,
+.ch-view-btn:hover {
+    background: var(--ca-accent-light);
+    border-color: var(--ca-accent);
+    color: var(--ca-accent);
+}
+
+/* Sort select */
+.ch-sort-select {
+    background: var(--ca-bg-base);
+    border: 1px solid var(--ca-border);
+    color: var(--ca-text-secondary);
+    border-radius: var(--ca-radius);
+    padding: 0.45rem 2rem 0.45rem 0.75rem;
+    font-size: 0.8rem;
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2364748B'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.6rem center;
+    transition: border-color 0.18s;
+}
+.ch-sort-select:focus { outline: none; border-color: var(--ca-accent); }
+.ch-sort-select option { background: var(--ca-bg-card); }
+
+/* ─── Category Tabs ───────────────────────────────────────── */
+.ch-cat-tabs {
+    display: flex;
+    gap: 0.35rem;
+    flex-wrap: wrap;
+    margin-bottom: 1.25rem;
+}
+.ch-cat-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.45rem 1rem;
+    border-radius: var(--ca-radius);
+    font-size: 0.82rem;
+    font-weight: 500;
+    border: 1px solid var(--ca-border);
+    background: var(--ca-bg-card);
+    color: var(--ca-text-secondary);
+    cursor: pointer;
+    transition: all 0.18s;
+    user-select: none;
+}
+.ch-cat-tab i { font-size: 0.8rem; }
+.ch-cat-tab .ch-cat-count {
+    background: var(--ca-bg-base);
+    color: var(--ca-text-muted);
+    font-size: 0.68rem;
+    font-weight: 700;
+    padding: 0.1em 0.45em;
+    border-radius: 99px;
+    margin-left: 0.1rem;
+}
+.ch-cat-tab:hover {
+    border-color: var(--ca-accent);
+    color: var(--ca-accent);
+    background: var(--ca-accent-light);
+}
+.ch-cat-tab.active {
+    background: var(--ca-accent-light);
+    border-color: var(--ca-accent);
+    color: var(--ca-accent);
+    font-weight: 600;
+}
+.ch-cat-tab.active .ch-cat-count {
+    background: var(--ca-accent);
+    color: #fff;
+}
+
+/* ─── Challenge Card Grid ─────────────────────────────────── */
+.ch-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
+}
+
+.ch-card {
+    background: var(--ca-bg-card);
+    border: 1px solid var(--ca-border);
+    border-radius: var(--ca-radius-lg);
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+    transition: all 0.2s;
+    cursor: pointer;
+    text-decoration: none;
+    position: relative;
+    overflow: hidden;
+}
+.ch-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--ch-card-accent, var(--ca-accent));
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+.ch-card:hover {
+    border-color: var(--ca-border-accent);
+    box-shadow: var(--ca-shadow);
+    transform: translateY(-2px);
+    text-decoration: none;
+}
+.ch-card:hover::before { opacity: 1; }
+
+/* Solved state */
+.ch-card.solved {
+    --ch-card-accent: var(--ca-success);
+}
+.ch-card.solved::before { opacity: 1; background: var(--ca-success); }
+.ch-card.solved { border-color: rgba(16,185,129,0.25); }
+
+/* Card header row */
+.ch-card-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.5rem;
+}
+
+.ch-card-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: var(--ca-radius);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    flex-shrink: 0;
+}
+
+/* Category icon colors */
+.ch-cat-web     { background: rgba(59,130,246,0.12);  color: #3B82F6; }
+.ch-cat-crypto  { background: rgba(245,158,11,0.12);  color: #F59E0B; }
+.ch-cat-rev     { background: rgba(139,92,246,0.12);  color: #8B5CF6; }
+.ch-cat-forensics{ background: rgba(16,185,129,0.12); color: #10B981; }
+.ch-cat-network { background: rgba(6,182,212,0.12);   color: #06B6D4; }
+.ch-cat-stego   { background: rgba(244,114,182,0.12); color: #F472B6; }
+.ch-cat-osint   { background: rgba(251,146,60,0.12);  color: #FB923C; }
+.ch-cat-pwn     { background: rgba(239,68,68,0.12);   color: #EF4444; }
+
+.ch-card-title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--ca-text-primary);
+    margin: 0;
+    line-height: 1.35;
+    flex: 1;
+}
+
+.ch-card-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+/* Difficulty badges */
+.ch-diff {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.2rem;
+    padding: 0.2em 0.6em;
+    border-radius: 99px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+.ch-diff.easy   { background: var(--ca-success-light); color: var(--ca-success); }
+.ch-diff.medium { background: var(--ca-warning-light); color: var(--ca-warning); }
+.ch-diff.hard   { background: var(--ca-danger-light);  color: var(--ca-danger);  }
+
+.ch-card-category {
+    font-size: 0.75rem;
+    color: var(--ca-text-muted);
+}
+
+.ch-card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: auto;
+}
+
+.ch-points {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--ca-accent);
+}
+.ch-points small {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.72rem;
+    color: var(--ca-text-muted);
+    font-weight: 400;
+    margin-left: 0.15rem;
+}
+
+.ch-solved-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--ca-success);
+    background: var(--ca-success-light);
+    padding: 0.25em 0.6em;
+    border-radius: 99px;
+}
+
+.ch-solvers-count {
+    font-size: 0.75rem;
+    color: var(--ca-text-muted);
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+/* ─── Challenge Count Bar ─────────────────────────────────── */
+.ch-count-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+}
+.ch-count-text {
+    font-size: 0.82rem;
+    color: var(--ca-text-muted);
+}
+.ch-count-text strong { color: var(--ca-text-primary); }
+
+/* ─── Empty State ─────────────────────────────────────────── */
+.ch-empty {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: var(--ca-text-muted);
+}
+.ch-empty i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.3;
+    display: block;
+}
+.ch-empty h4 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--ca-text-secondary);
+    margin-bottom: 0.5rem;
+}
+.ch-empty p { font-size: 0.875rem; }
+
+/* ─── Challenge Detail Page ───────────────────────────────── */
+.ch-detail-layout {
+    display: grid;
+    grid-template-columns: 1fr 360px;
+    gap: 1.5rem;
+    align-items: start;
+}
+
+.ch-detail-card {
+    background: var(--ca-bg-card);
+    border: 1px solid var(--ca-border);
+    border-radius: var(--ca-radius-lg);
+}
+
+.ch-detail-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--ca-border-light);
+    position: relative;
+    overflow: hidden;
+}
+.ch-detail-header::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--ca-accent), #6366F1);
+}
+
+.ch-detail-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--ca-text-primary);
+    margin-bottom: 0.75rem;
+}
+
+.ch-detail-badges {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.ch-detail-body {
+    padding: 1.5rem;
+}
+
+.ch-description {
+    font-size: 0.9rem;
+    color: var(--ca-text-secondary);
+    line-height: 1.75;
+    margin-bottom: 1.5rem;
+    white-space: pre-line;
+}
+
+/* Hint accordion */
+.ch-hint-section { margin-bottom: 1.5rem; }
+.ch-hint-section h5 {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--ca-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.ch-hint-card {
+    background: var(--ca-warning-light);
+    border: 1px solid rgba(245,158,11,0.2);
+    border-radius: var(--ca-radius);
+    overflow: hidden;
+}
+.ch-hint-toggle {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--ca-warning);
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: background 0.18s;
+}
+.ch-hint-toggle:hover { background: rgba(245,158,11,0.08); }
+.ch-hint-body {
+    padding: 0 1rem 0.75rem;
+    font-size: 0.875rem;
+    color: var(--ca-text-secondary);
+    display: none;
+    line-height: 1.6;
+}
+.ch-hint-body.show { display: block; }
+
+/* File downloads */
+.ch-files-section { margin-bottom: 1.5rem; }
+.ch-files-section h5 {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--ca-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    margin-bottom: 0.75rem;
+}
+.ch-file-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.65rem 1rem;
+    background: var(--ca-bg-base);
+    border: 1px solid var(--ca-border);
+    border-radius: var(--ca-radius);
+    margin-bottom: 0.5rem;
+    text-decoration: none;
+    transition: all 0.18s;
+}
+.ch-file-item:hover {
+    border-color: var(--ca-accent);
+    background: var(--ca-accent-light);
+    text-decoration: none;
+}
+.ch-file-icon { color: var(--ca-accent); font-size: 1rem; }
+.ch-file-name { font-size: 0.875rem; color: var(--ca-text-secondary); flex: 1; }
+.ch-file-size { font-size: 0.75rem; color: var(--ca-text-muted); }
+
+/* ─── Flag Submission Form ────────────────────────────────── */
+.ch-flag-card {
+    background: var(--ca-bg-card);
+    border: 1px solid var(--ca-border);
+    border-radius: var(--ca-radius-lg);
+    position: sticky;
+    top: calc(var(--ca-topbar-height) + 1.5rem);
+}
+
+.ch-flag-header {
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid var(--ca-border-light);
+}
+.ch-flag-title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--ca-text-primary);
+    margin: 0;
+}
+
+.ch-flag-body { padding: 1.5rem; }
+
+.ch-stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+}
+.ch-stat-mini {
+    background: var(--ca-bg-base);
+    border-radius: var(--ca-radius);
+    padding: 0.85rem;
+    text-align: center;
+}
+.ch-stat-mini-value {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--ca-text-primary);
+    display: block;
+}
+.ch-stat-mini-label {
+    font-size: 0.72rem;
+    color: var(--ca-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.ch-flag-form { margin-top: 1.25rem; }
+.ch-flag-label {
+    display: block;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--ca-text-secondary);
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.ch-flag-input-wrap { position: relative; }
+.ch-flag-input {
+    width: 100%;
+    background: var(--ca-bg-base);
+    border: 1px solid var(--ca-border);
+    color: var(--ca-text-primary);
+    border-radius: var(--ca-radius);
+    padding: 0.7rem 1rem 0.7rem 2.5rem;
+    font-size: 0.9rem;
+    font-family: 'Space Grotesk', monospace;
+    letter-spacing: 0.03em;
+    transition: all 0.18s;
+}
+.ch-flag-input::placeholder { color: var(--ca-text-muted); font-family: 'Inter', sans-serif; letter-spacing: normal; }
+.ch-flag-input:focus {
+    outline: none;
+    border-color: var(--ca-accent);
+    box-shadow: 0 0 0 3px var(--ca-accent-glow);
+    background: var(--ca-bg-base);
+}
+.ch-flag-icon {
+    position: absolute;
+    left: 0.85rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--ca-text-muted);
+    font-size: 0.85rem;
+    pointer-events: none;
+}
+
+.ch-flag-submit {
+    width: 100%;
+    margin-top: 0.75rem;
+    padding: 0.7rem;
+    background: linear-gradient(135deg, var(--ca-accent), #4F46E5);
+    border: none;
+    border-radius: var(--ca-radius);
+    color: #fff;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.18s;
+}
+.ch-flag-submit:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(59,130,246,0.4);
+}
+
+/* Submission result messages */
+.ch-submit-result {
+    margin-top: 0.75rem;
+    padding: 0.75rem 1rem;
+    border-radius: var(--ca-radius);
+    font-size: 0.875rem;
+    font-weight: 500;
+    display: none;
+}
+.ch-submit-result.correct {
+    background: var(--ca-success-light);
+    border: 1px solid rgba(16,185,129,0.3);
+    color: var(--ca-success);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+.ch-submit-result.incorrect {
+    background: var(--ca-danger-light);
+    border: 1px solid rgba(239,68,68,0.3);
+    color: var(--ca-danger);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Already solved overlay */
+.ch-already-solved {
+    background: var(--ca-success-light);
+    border: 1px solid rgba(16,185,129,0.25);
+    border-radius: var(--ca-radius);
+    padding: 1rem;
+    text-align: center;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+.ch-already-solved i { color: var(--ca-success); font-size: 1.2rem; }
+.ch-already-solved span { font-size: 0.875rem; color: var(--ca-success); font-weight: 500; }
+
+/* ─── Admin Layout ────────────────────────────────────────── */
+.adm-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.adm-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: var(--ca-text-primary);
+    margin: 0 0 0.15rem;
+}
+.adm-subtitle { font-size: 0.82rem; color: var(--ca-text-muted); margin: 0; }
+
+/* Admin stats row */
+.adm-stat-row {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+}
+.adm-stat-chip {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--ca-bg-card);
+    border: 1px solid var(--ca-border);
+    border-radius: var(--ca-radius);
+    padding: 0.6rem 1rem;
+    font-size: 0.82rem;
+}
+.adm-stat-chip strong {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1rem;
+    color: var(--ca-text-primary);
+}
+.adm-stat-chip span { color: var(--ca-text-muted); }
+
+/* Admin Table Card */
+.adm-table-card {
+    background: var(--ca-bg-card);
+    border: 1px solid var(--ca-border);
+    border-radius: var(--ca-radius-lg);
+    overflow: hidden;
+}
+.adm-table-toolbar {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--ca-border-light);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+/* Status badges in admin table */
+.adm-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.25em 0.7em;
+    border-radius: 99px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+}
+.adm-status::before {
+    content: '';
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+    opacity: 0.8;
+}
+.adm-status.active    { background: var(--ca-success-light); color: var(--ca-success); }
+.adm-status.draft     { background: var(--ca-warning-light); color: var(--ca-warning); }
+.adm-status.archived  { background: var(--ca-bg-base); color: var(--ca-text-muted); border: 1px solid var(--ca-border); }
+
+/* Admin action buttons */
+.adm-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+.adm-action-btn {
+    width: 30px;
+    height: 30px;
+    border-radius: var(--ca-radius-sm);
+    border: 1px solid var(--ca-border);
+    background: transparent;
+    color: var(--ca-text-muted);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.78rem;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.18s;
+}
+.adm-action-btn.view:hover   { background: var(--ca-accent-light); border-color: var(--ca-accent); color: var(--ca-accent); }
+.adm-action-btn.edit:hover   { background: var(--ca-warning-light); border-color: var(--ca-warning); color: var(--ca-warning); }
+.adm-action-btn.delete:hover { background: var(--ca-danger-light);  border-color: var(--ca-danger);  color: var(--ca-danger);  }
+
+/* ─── Challenge Form (Create / Edit) ─────────────────────── */
+.ch-form-card {
+    background: var(--ca-bg-card);
+    border: 1px solid var(--ca-border);
+    border-radius: var(--ca-radius-lg);
+}
+.ch-form-section {
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--ca-border-light);
+}
+.ch-form-section:last-child { border-bottom: none; }
+.ch-form-section-title {
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ca-text-muted);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+.ch-form-section-title i { color: var(--ca-accent); }
+
+/* Flag input in form — monospace treatment */
+.ch-form-flag input {
+    font-family: 'Space Grotesk', monospace;
+    letter-spacing: 0.04em;
+    background: var(--ca-bg-base);
+}
+
+/* File upload drop zone */
+.ch-upload-zone {
+    border: 2px dashed var(--ca-border);
+    border-radius: var(--ca-radius);
+    padding: 2rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+}
+.ch-upload-zone:hover,
+.ch-upload-zone.drag-over {
+    border-color: var(--ca-accent);
+    background: var(--ca-accent-light);
+}
+.ch-upload-zone input[type="file"] {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+}
+.ch-upload-icon {
+    font-size: 2rem;
+    color: var(--ca-text-muted);
+    margin-bottom: 0.75rem;
+    display: block;
+}
+.ch-upload-label {
+    font-size: 0.875rem;
+    color: var(--ca-text-secondary);
+    margin-bottom: 0.25rem;
+}
+.ch-upload-hint { font-size: 0.78rem; color: var(--ca-text-muted); }
+
+/* Form select override for dark theme */
+.ch-form-select {
+    background-color: var(--ca-bg-base) !important;
+    border-color: var(--ca-border) !important;
+    color: var(--ca-text-primary) !important;
+}
+.ch-form-select option { background: var(--ca-bg-card); color: var(--ca-text-primary); }
+
+/* ─── Responsive ─────────────────────────────────────────── */
+@media (max-width: 991.98px) {
+    .ch-detail-layout {
+        grid-template-columns: 1fr;
+    }
+    .ch-flag-card { position: static; }
+    .ch-grid { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
+}
+
+@media (max-width: 767.98px) {
+    .ch-toolbar { gap: 0.5rem; }
+    .ch-cat-tabs { gap: 0.25rem; }
+    .ch-grid { grid-template-columns: 1fr 1fr; }
+    .adm-stat-row { gap: 0.5rem; }
+}
+
+@media (max-width: 575.98px) {
+    .ch-grid { grid-template-columns: 1fr; }
+}

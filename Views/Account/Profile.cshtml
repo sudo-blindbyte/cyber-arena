@@ -1,0 +1,417 @@
+@model ProfileViewModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "My Profile";
+    ViewData["Breadcrumb"] = "Profile";
+}
+
+<div class="stagger-children">
+
+    @* ─── Profile Hero Card ────────────────────────────────── *@
+    <div class="ca-profile-hero mb-4">
+        <div class="ca-profile-avatar">
+            @if (!string.IsNullOrEmpty(Model.AvatarUrl))
+            {
+                <img src="@Model.AvatarUrl" alt="@Model.Username avatar" />
+            }
+            else
+            {
+                @Model.AvatarInitials
+            }
+        </div>
+
+        <div class="ca-profile-info">
+            <h2 class="ca-profile-name">@(Model.FullName ?? Model.Username)</h2>
+            <p class="ca-profile-username">
+                <i class="fas fa-at me-1" style="color:var(--ca-text-muted);" aria-hidden="true"></i>@Model.Username
+                @if (!string.IsNullOrEmpty(Model.TeamName))
+                {
+                    <span class="ms-2">
+                        <i class="fas fa-users me-1" style="color:var(--ca-text-muted);" aria-hidden="true"></i>
+                        <span class="ca-tag easy">@Model.TeamRole</span>
+                        <span style="color:var(--ca-text-muted);">@Model.TeamName</span>
+                    </span>
+                }
+            </p>
+            <div class="ca-profile-badges">
+                <span class="ca-tag easy"><i class="fas fa-shield-halved me-1" aria-hidden="true"></i>Participant</span>
+                @if (Model.CompetitionsWon > 0)
+                {
+                    <span class="ca-tag medium"><i class="fas fa-trophy me-1" aria-hidden="true"></i>@Model.CompetitionsWon× Winner</span>
+                }
+                @if (Model.ChallengesSolved >= 30)
+                {
+                    <span class="ca-tag hard"><i class="fas fa-fire me-1" aria-hidden="true"></i>Elite Hacker</span>
+                }
+                <span class="ca-tag" style="background:var(--ca-bg-base);color:var(--ca-text-muted);">
+                    <i class="fas fa-calendar-plus me-1" aria-hidden="true"></i>
+                    Joined @Model.JoinDate.ToString("MMM yyyy")
+                </span>
+            </div>
+
+            @if (!string.IsNullOrEmpty(Model.Bio))
+            {
+                <p class="mt-2 mb-0" style="font-size:0.875rem;color:var(--ca-text-secondary);max-width:500px;">@Model.Bio</p>
+            }
+
+            @* Social links *@
+            <div class="d-flex align-items-center gap-3 mt-2">
+                @if (!string.IsNullOrEmpty(Model.Location))
+                {
+                    <span style="font-size:0.8rem;color:var(--ca-text-muted);">
+                        <i class="fas fa-location-dot me-1" aria-hidden="true"></i>@Model.Location
+                    </span>
+                }
+                @if (!string.IsNullOrEmpty(Model.Website))
+                {
+                    <a href="@Model.Website" target="_blank" rel="noopener noreferrer"
+                       style="font-size:0.8rem;color:var(--ca-accent);">
+                        <i class="fas fa-globe me-1" aria-hidden="true"></i>Website
+                    </a>
+                }
+                @if (!string.IsNullOrEmpty(Model.GitHubHandle))
+                {
+                    <a href="https://github.com/@Model.GitHubHandle" target="_blank" rel="noopener noreferrer"
+                       style="font-size:0.8rem;color:var(--ca-text-secondary);">
+                        <i class="fab fa-github me-1" aria-hidden="true"></i>@@@Model.GitHubHandle
+                    </a>
+                }
+            </div>
+        </div>
+
+        @* Stats *@
+        <div class="ca-profile-stats d-none d-md-flex">
+            <div class="ca-profile-stat">
+                <span class="ca-profile-stat-value" data-count="@Model.TotalScore">@Model.TotalScore.ToString("N0")</span>
+                <span class="ca-profile-stat-label">Score</span>
+            </div>
+            <div class="ca-profile-stat">
+                <span class="ca-profile-stat-value">#@Model.CurrentRank</span>
+                <span class="ca-profile-stat-label">Global Rank</span>
+            </div>
+            <div class="ca-profile-stat">
+                <span class="ca-profile-stat-value" data-count="@Model.ChallengesSolved">@Model.ChallengesSolved</span>
+                <span class="ca-profile-stat-label">Solved</span>
+            </div>
+        </div>
+    </div>
+
+    @* ─── Stats Row (mobile) ───────────────────────────────── *@
+    <div class="row g-3 mb-4 d-md-none">
+        <div class="col-4">
+            <div class="ca-stat-card accent text-center p-3">
+                <div>
+                    <div class="ca-stat-label">Score</div>
+                    <div class="ca-stat-value" style="font-size:1.4rem;">@Model.TotalScore.ToString("N0")</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-4">
+            <div class="ca-stat-card info text-center p-3">
+                <div>
+                    <div class="ca-stat-label">Rank</div>
+                    <div class="ca-stat-value" style="font-size:1.4rem;">#@Model.CurrentRank</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-4">
+            <div class="ca-stat-card success text-center p-3">
+                <div>
+                    <div class="ca-stat-label">Solved</div>
+                    <div class="ca-stat-value" style="font-size:1.4rem;">@Model.ChallengesSolved</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* ─── Main Grid ────────────────────────────────────────── *@
+    <div class="row g-4">
+
+        @* ── Left Column ── *@
+        <div class="col-lg-8">
+
+            @* Edit Profile Card *@
+            <div class="ca-card mb-4">
+                <div class="ca-card-header">
+                    <div>
+                        <h3 class="ca-card-title">
+                            <i class="fas fa-pen-to-square me-2" style="color:var(--ca-accent);" aria-hidden="true"></i>
+                            Edit Profile
+                        </h3>
+                    </div>
+                </div>
+
+                <form asp-controller="Account" asp-action="Profile" method="post" data-loading="true" novalidate>
+                    @Html.AntiForgeryToken()
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label asp-for="EditFullName" class="form-label">Full Name</label>
+                            <input asp-for="EditFullName"
+                                   id="prof-fullname"
+                                   class="form-control"
+                                   placeholder="Your real name (optional)" />
+                            <span asp-validation-for="EditFullName" class="field-validation-error d-block mt-1"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Email</label>
+                            <input type="email"
+                                   class="form-control"
+                                   value="@Model.Email"
+                                   disabled
+                                   style="opacity:0.6;cursor:not-allowed;"
+                                   title="Email cannot be changed here. Contact support." />
+                        </div>
+                        <div class="col-12">
+                            <label asp-for="EditBio" class="form-label">Bio</label>
+                            <textarea asp-for="EditBio"
+                                      id="prof-bio"
+                                      class="form-control"
+                                      rows="3"
+                                      placeholder="Tell others about yourself..."
+                                      maxlength="300"></textarea>
+                            <div class="d-flex justify-content-end mt-1">
+                                <small class="text-muted" id="bio-count">0/300</small>
+                            </div>
+                            <span asp-validation-for="EditBio" class="field-validation-error d-block mt-1"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="EditLocation" class="form-label">Location</label>
+                            <div class="input-group">
+                                <span class="input-group-text" style="background:var(--ca-bg-card);border-color:var(--ca-border);color:var(--ca-text-muted);">
+                                    <i class="fas fa-location-dot" aria-hidden="true"></i>
+                                </span>
+                                <input asp-for="EditLocation"
+                                       id="prof-location"
+                                       class="form-control"
+                                       placeholder="City, Country" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="EditWebsite" class="form-label">Website</label>
+                            <div class="input-group">
+                                <span class="input-group-text" style="background:var(--ca-bg-card);border-color:var(--ca-border);color:var(--ca-text-muted);">
+                                    <i class="fas fa-globe" aria-hidden="true"></i>
+                                </span>
+                                <input asp-for="EditWebsite"
+                                       id="prof-website"
+                                       class="form-control"
+                                       placeholder="https://yoursite.com" />
+                            </div>
+                            <span asp-validation-for="EditWebsite" class="field-validation-error d-block mt-1"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="EditGitHubHandle" class="form-label">GitHub Username</label>
+                            <div class="input-group">
+                                <span class="input-group-text" style="background:var(--ca-bg-card);border-color:var(--ca-border);color:var(--ca-text-muted);">@@</span>
+                                <input asp-for="EditGitHubHandle"
+                                       id="prof-github"
+                                       class="form-control"
+                                       placeholder="yourgithub" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="submit" id="btn-save-profile" class="btn btn-primary">
+                            <i class="fas fa-floppy-disk me-2" aria-hidden="true"></i>Save Changes
+                        </button>
+                        <a asp-controller="Account" asp-action="Profile" class="btn btn-secondary">
+                            Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+
+            @* Change Password *@
+            <div class="ca-card">
+                <div class="ca-card-header">
+                    <h3 class="ca-card-title">
+                        <i class="fas fa-key me-2" style="color:var(--ca-warning);" aria-hidden="true"></i>
+                        Change Password
+                    </h3>
+                </div>
+
+                <form asp-controller="Account" asp-action="ChangePassword" method="post" data-loading="true" novalidate>
+                    @Html.AntiForgeryToken()
+
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label">Current Password</label>
+                            <div class="ca-input-group">
+                                <span class="ca-input-icon"><i class="fas fa-lock" aria-hidden="true"></i></span>
+                                <input name="CurrentPassword" id="cp-current"
+                                       class="form-control"
+                                       type="password"
+                                       placeholder="Your current password"
+                                       autocomplete="current-password"
+                                       required />
+                                <button class="ca-pwd-toggle" type="button" data-target="cp-current" aria-label="Show/hide">
+                                    <i class="fas fa-eye" aria-hidden="true"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">New Password</label>
+                            <div class="ca-input-group">
+                                <span class="ca-input-icon"><i class="fas fa-lock-open" aria-hidden="true"></i></span>
+                                <input name="NewPassword" id="cp-new"
+                                       class="form-control"
+                                       type="password"
+                                       placeholder="Min. 8 characters"
+                                       autocomplete="new-password"
+                                       data-pwd-strength="cp-strength"
+                                       required />
+                                <button class="ca-pwd-toggle" type="button" data-target="cp-new" aria-label="Show/hide">
+                                    <i class="fas fa-eye" aria-hidden="true"></i>
+                                </button>
+                            </div>
+                            <div class="ca-pwd-strength mt-2" id="cp-strength" aria-live="polite">
+                                <div class="ca-pwd-strength-bar"></div>
+                                <div class="ca-pwd-strength-bar"></div>
+                                <div class="ca-pwd-strength-bar"></div>
+                                <div class="ca-pwd-strength-bar"></div>
+                                <span class="ca-pwd-strength-label"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Confirm New Password</label>
+                            <div class="ca-input-group">
+                                <span class="ca-input-icon"><i class="fas fa-lock-open" aria-hidden="true"></i></span>
+                                <input name="ConfirmPassword" id="cp-confirm"
+                                       class="form-control"
+                                       type="password"
+                                       placeholder="Repeat new password"
+                                       autocomplete="new-password"
+                                       required />
+                                <button class="ca-pwd-toggle" type="button" data-target="cp-confirm" aria-label="Show/hide">
+                                    <i class="fas fa-eye" aria-hidden="true"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <button type="submit" id="btn-change-pwd" class="btn btn-primary">
+                            <i class="fas fa-rotate me-2" aria-hidden="true"></i>Update Password
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+
+        @* ── Right Column ── *@
+        <div class="col-lg-4">
+
+            @* Account Info *@
+            <div class="ca-card mb-4">
+                <div class="ca-card-header">
+                    <h3 class="ca-card-title">Account Info</h3>
+                </div>
+                <div class="d-flex flex-column gap-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span style="font-size:0.82rem;color:var(--ca-text-muted);">Username</span>
+                        <span style="font-size:0.875rem;font-weight:600;color:var(--ca-text-primary);">@Model.Username</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span style="font-size:0.82rem;color:var(--ca-text-muted);">Email</span>
+                        <span style="font-size:0.875rem;color:var(--ca-text-secondary);">@Model.Email</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span style="font-size:0.82rem;color:var(--ca-text-muted);">Team</span>
+                        <span style="font-size:0.875rem;color:var(--ca-text-primary);">
+                            @(Model.TeamName ?? "— No team")
+                        </span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span style="font-size:0.82rem;color:var(--ca-text-muted);">Team role</span>
+                        <span class="ca-tag @(Model.TeamRole == "Captain" ? "medium" : "easy")">@(Model.TeamRole ?? "—")</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span style="font-size:0.82rem;color:var(--ca-text-muted);">Member since</span>
+                        <span style="font-size:0.875rem;color:var(--ca-text-secondary);">@Model.JoinDate.ToString("dd MMM yyyy")</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span style="font-size:0.82rem;color:var(--ca-text-muted);">Last active</span>
+                        <span style="font-size:0.875rem;color:var(--ca-text-secondary);">
+                            @(Model.LastActiveDate?.ToString("dd MMM, HH:mm") ?? "—")
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            @* CTF Stats *@
+            <div class="ca-card mb-4">
+                <div class="ca-card-header">
+                    <h3 class="ca-card-title">CTF Statistics</h3>
+                </div>
+                <div class="d-flex flex-column gap-3">
+
+                    <div>
+                        <div class="d-flex justify-content-between mb-1">
+                            <span style="font-size:0.82rem;color:var(--ca-text-muted);">Challenges Solved</span>
+                            <span style="font-size:0.82rem;font-weight:600;color:var(--ca-text-primary);">@Model.ChallengesSolved / @Model.TotalChallenges</span>
+                        </div>
+                        <div class="ca-progress">
+                            <div class="ca-progress-bar" data-width="@((int)((double)Model.ChallengesSolved / Model.TotalChallenges * 100))"></div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <span style="font-size:0.82rem;color:var(--ca-text-muted);">Total Score</span>
+                        <span style="font-size:0.875rem;font-weight:700;color:var(--ca-accent);">@Model.TotalScore.ToString("N0") pts</span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span style="font-size:0.82rem;color:var(--ca-text-muted);">Global Rank</span>
+                        <span style="font-size:0.875rem;font-weight:700;color:var(--ca-text-primary);">#@Model.CurrentRank of @Model.TotalParticipants</span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span style="font-size:0.82rem;color:var(--ca-text-muted);">Competitions Entered</span>
+                        <span style="font-size:0.875rem;font-weight:600;color:var(--ca-text-primary);">@Model.CompetitionsEntered</span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span style="font-size:0.82rem;color:var(--ca-text-muted);">Competitions Won</span>
+                        <span class="ca-tag medium">
+                            <i class="fas fa-trophy me-1" aria-hidden="true"></i>@Model.CompetitionsWon
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            @* Danger Zone *@
+            <div class="ca-card" style="border-color:rgba(239,68,68,0.2);">
+                <div class="ca-card-header">
+                    <h3 class="ca-card-title" style="color:var(--ca-danger);">
+                        <i class="fas fa-triangle-exclamation me-2" aria-hidden="true"></i>Danger Zone
+                    </h3>
+                </div>
+                <p style="font-size:0.82rem;color:var(--ca-text-muted);margin-bottom:1rem;">
+                    These actions are irreversible. Please be certain before proceeding.
+                </p>
+                <button type="button" class="btn btn-outline-danger btn-sm w-100" disabled
+                        title="This feature will be enabled by the backend team"
+                        data-bs-toggle="tooltip" data-bs-placement="top">
+                    <i class="fas fa-trash me-2" aria-hidden="true"></i>Delete Account
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+    <script>
+        // Bio character counter
+        var bioEl = document.getElementById('prof-bio');
+        var bioCount = document.getElementById('bio-count');
+        if (bioEl && bioCount) {
+            bioCount.textContent = bioEl.value.length + '/300';
+            bioEl.addEventListener('input', function () {
+                bioCount.textContent = bioEl.value.length + '/300';
+            });
+        }
+    </script>
+}

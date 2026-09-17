@@ -1,0 +1,189 @@
+@model RegisterViewModel
+@{
+    Layout = "_AuthLayout";
+    ViewData["Title"] = "Create Account";
+}
+
+<div class="ca-auth-page">
+
+    @* ─── Left Panel ─────────────────────────────────────── *@
+    <div class="ca-auth-left" aria-hidden="true">
+        <div class="ca-auth-grid"></div>
+
+        <a class="ca-auth-logo" asp-controller="Home" asp-action="Index">
+            <div class="ca-auth-logo-icon"><i class="fas fa-shield-halved"></i></div>
+            <div>
+                <span class="ca-auth-logo-text">CyberArena</span>
+                <span class="ca-auth-logo-sub">CTF Management Platform</span>
+            </div>
+        </a>
+
+        <div class="ca-auth-brand">
+            <h2 class="ca-auth-headline">
+                Start Your<br /><span>Hacking Journey</span>
+            </h2>
+            <p class="ca-auth-subtext">
+                Create your free account and join the global community of
+                CTF competitors. Begin with beginner challenges and work your
+                way to expert-level exploits.
+            </p>
+        </div>
+
+        <div class="ca-auth-features">
+            <div class="ca-auth-feature">
+                <div class="ca-auth-feature-icon"><i class="fas fa-rocket"></i></div>
+                <span>Free to join — unlimited access</span>
+            </div>
+            <div class="ca-auth-feature">
+                <div class="ca-auth-feature-icon"><i class="fas fa-chart-line"></i></div>
+                <span>Track your progress &amp; growth</span>
+            </div>
+            <div class="ca-auth-feature">
+                <div class="ca-auth-feature-icon"><i class="fas fa-medal"></i></div>
+                <span>Earn badges &amp; climb rankings</span>
+            </div>
+        </div>
+
+        <div class="ca-auth-shield" aria-hidden="true"><i class="fas fa-shield-halved"></i></div>
+    </div>
+
+    @* ─── Right Panel ─────────────────────────────────────── *@
+    <div class="ca-auth-right">
+        <div class="ca-auth-form-wrap">
+
+            <div class="ca-auth-form-header">
+                <h1 class="ca-auth-form-title">Create account</h1>
+                <p class="ca-auth-form-subtitle">Join CyberArena — it's completely free</p>
+            </div>
+
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div class="alert alert-danger mb-3" role="alert">
+                    <div asp-validation-summary="ModelOnly"></div>
+                </div>
+            }
+
+            <form asp-controller="Account" asp-action="Register"
+                  method="post" data-loading="true" novalidate>
+                @Html.AntiForgeryToken()
+
+                @* Username *@
+                <div class="ca-auth-field">
+                    <label asp-for="Username">Username</label>
+                    <div class="ca-input-group">
+                        <span class="ca-input-icon"><i class="fas fa-at" aria-hidden="true"></i></span>
+                        <input asp-for="Username"
+                               id="reg-username"
+                               class="form-control"
+                               placeholder="coolhacker_42"
+                               autocomplete="username"
+                               spellcheck="false" />
+                    </div>
+                    <span asp-validation-for="Username" class="field-validation-error mt-1 d-block"></span>
+                </div>
+
+                @* Email *@
+                <div class="ca-auth-field">
+                    <label asp-for="Email">Email address</label>
+                    <div class="ca-input-group">
+                        <span class="ca-input-icon"><i class="fas fa-envelope" aria-hidden="true"></i></span>
+                        <input asp-for="Email"
+                               id="reg-email"
+                               class="form-control"
+                               type="email"
+                               placeholder="you@example.com"
+                               autocomplete="email" />
+                    </div>
+                    <span asp-validation-for="Email" class="field-validation-error mt-1 d-block"></span>
+                </div>
+
+                @* Password *@
+                <div class="ca-auth-field">
+                    <label asp-for="Password">Password</label>
+                    <div class="ca-input-group">
+                        <span class="ca-input-icon"><i class="fas fa-lock" aria-hidden="true"></i></span>
+                        <input asp-for="Password"
+                               id="reg-password"
+                               class="form-control"
+                               type="password"
+                               placeholder="Min. 8 characters"
+                               autocomplete="new-password"
+                               data-pwd-strength="pwd-strength-meter" />
+                        <button class="ca-pwd-toggle" type="button" data-target="reg-password" aria-label="Show/hide password">
+                            <i class="fas fa-eye" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                    @* Password strength indicator *@
+                    <div class="ca-pwd-strength mt-2" id="pwd-strength-meter" aria-live="polite">
+                        <div class="ca-pwd-strength-bar" aria-hidden="true"></div>
+                        <div class="ca-pwd-strength-bar" aria-hidden="true"></div>
+                        <div class="ca-pwd-strength-bar" aria-hidden="true"></div>
+                        <div class="ca-pwd-strength-bar" aria-hidden="true"></div>
+                        <span class="ca-pwd-strength-label"></span>
+                    </div>
+                    <span asp-validation-for="Password" class="field-validation-error mt-1 d-block"></span>
+                </div>
+
+                @* Confirm Password *@
+                <div class="ca-auth-field">
+                    <label asp-for="ConfirmPassword">Confirm password</label>
+                    <div class="ca-input-group">
+                        <span class="ca-input-icon"><i class="fas fa-lock-open" aria-hidden="true"></i></span>
+                        <input asp-for="ConfirmPassword"
+                               id="reg-confirm-password"
+                               class="form-control"
+                               type="password"
+                               placeholder="Repeat your password"
+                               autocomplete="new-password" />
+                        <button class="ca-pwd-toggle" type="button" data-target="reg-confirm-password" aria-label="Show/hide password">
+                            <i class="fas fa-eye" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                    <span asp-validation-for="ConfirmPassword" class="field-validation-error mt-1 d-block"></span>
+                </div>
+
+                @* Team (optional) *@
+                <div class="ca-auth-field">
+                    <label asp-for="TeamName">Team name <span style="color:var(--ca-text-muted);font-weight:400">(optional)</span></label>
+                    <div class="ca-input-group">
+                        <span class="ca-input-icon"><i class="fas fa-users" aria-hidden="true"></i></span>
+                        <input asp-for="TeamName"
+                               id="reg-team"
+                               class="form-control"
+                               placeholder="ByteBreakers"
+                               autocomplete="off" />
+                    </div>
+                    <span asp-validation-for="TeamName" class="field-validation-error mt-1 d-block"></span>
+                </div>
+
+                @* Accept Terms *@
+                <div class="mb-3">
+                    <div class="ca-auth-remember">
+                        <input asp-for="AcceptTerms" id="reg-terms" type="checkbox" />
+                        <label asp-for="AcceptTerms" style="font-size:0.82rem;">
+                            I agree to the
+                            <a href="#" style="color:var(--ca-accent);">Terms of Service</a> and
+                            <a href="#" style="color:var(--ca-accent);">Privacy Policy</a>
+                        </label>
+                    </div>
+                    <span asp-validation-for="AcceptTerms" class="field-validation-error d-block mt-1"></span>
+                </div>
+
+                <button type="submit" id="btn-register" class="ca-auth-submit">
+                    <i class="fas fa-user-plus me-2" aria-hidden="true"></i>
+                    Create Account
+                </button>
+
+                <p class="ca-auth-footer-text">
+                    Already have an account?
+                    <a asp-controller="Account" asp-action="Login">Sign in</a>
+                </p>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+}

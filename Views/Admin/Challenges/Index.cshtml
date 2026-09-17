@@ -1,0 +1,307 @@
+@model AdminChallengeListViewModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Challenge Management";
+    ViewData["Breadcrumb"] = "Admin · Challenges";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/challenges.css" asp-append-version="true" />
+}
+
+@* ─── Flash Messages ──────────────────────────────────────── *@
+@if (TempData["AdminSuccess"] != null)
+{
+    <div class="alert alert-success ca-auto-dismiss d-flex align-items-center gap-2 mb-3" role="alert">
+        <i class="fas fa-circle-check fa-fw" aria-hidden="true"></i>
+        <span>@TempData["AdminSuccess"]</span>
+    </div>
+}
+
+<div class="stagger-children">
+
+    @* ─── Page Header ─────────────────────────────────────── *@
+    <div class="adm-header">
+        <div>
+            <h2 class="adm-title">
+                <i class="fas fa-shield-halved me-2" style="color:var(--ca-accent);" aria-hidden="true"></i>
+                Challenge Management
+            </h2>
+            <p class="adm-subtitle">Create, edit, and manage all CTF challenges</p>
+        </div>
+        <a asp-controller="Admin" asp-action="ChallengeCreate"
+           class="btn btn-primary" id="btn-create-challenge">
+            <i class="fas fa-plus me-2" aria-hidden="true"></i>Create Challenge
+        </a>
+    </div>
+
+    @* ─── Admin Stats ──────────────────────────────────────── *@
+    <div class="adm-stat-row">
+        <div class="adm-stat-chip">
+            <i class="fas fa-flag" style="color:var(--ca-accent);" aria-hidden="true"></i>
+            <strong>@Model.TotalCount</strong>
+            <span>Total</span>
+        </div>
+        <div class="adm-stat-chip">
+            <i class="fas fa-circle-check" style="color:var(--ca-success);" aria-hidden="true"></i>
+            <strong>@Model.ActiveCount</strong>
+            <span>Active</span>
+        </div>
+        <div class="adm-stat-chip">
+            <i class="fas fa-pen-ruler" style="color:var(--ca-warning);" aria-hidden="true"></i>
+            <strong>@Model.DraftCount</strong>
+            <span>Draft</span>
+        </div>
+        <div class="adm-stat-chip">
+            <i class="fas fa-box-archive" style="color:var(--ca-text-muted);" aria-hidden="true"></i>
+            <strong>@Model.ArchivedCount</strong>
+            <span>Archived</span>
+        </div>
+    </div>
+
+    @* ─── Table Card ──────────────────────────────────────── *@
+    <div class="adm-table-card">
+
+        @* Toolbar *@
+        <div class="adm-table-toolbar">
+            @* Search *@
+            <div class="ch-search-wrap" style="min-width:220px;flex:1;">
+                <span class="ch-search-icon"><i class="fas fa-magnifying-glass" aria-hidden="true"></i></span>
+                <input type="search"
+                       id="adm-search"
+                       class="ch-search-input"
+                       placeholder="Search challenges…"
+                       value="@Model.SearchQuery"
+                       aria-label="Search admin challenges" />
+            </div>
+
+            @* Category filter *@
+            <select class="ch-sort-select" id="adm-cat-filter" aria-label="Filter by category" style="min-width:140px;">
+                <option value="All" selected="@(string.IsNullOrEmpty(Model.FilterCategory))">All Categories</option>
+                @foreach (var cat in ChallengeCategories.All)
+                {
+                    <option value="@cat" selected="@(Model.FilterCategory == cat)">@cat</option>
+                }
+            </select>
+
+            @* Status filter *@
+            <select class="ch-sort-select" id="adm-status-filter" aria-label="Filter by status" style="min-width:120px;">
+                <option value="All" selected="@(string.IsNullOrEmpty(Model.FilterStatus))">All Status</option>
+                @foreach (var s in ChallengeStatus.All)
+                {
+                    <option value="@s" selected="@(Model.FilterStatus == s)">@s</option>
+                }
+            </select>
+
+            <span style="font-size:0.82rem;color:var(--ca-text-muted);white-space:nowrap;" id="adm-count-label" aria-live="polite">
+                <strong id="adm-visible-count">@Model.TotalCount</strong> challenges
+            </span>
+        </div>
+
+        @* Table *@
+        <div class="table-responsive">
+            <table class="table mb-0" aria-label="Admin challenges table">
+                <thead>
+                    <tr>
+                        <th style="width:50px;">ID</th>
+                        <th>Title</th>
+                        <th>Category</th>
+                        <th>Difficulty</th>
+                        <th class="text-center">Points</th>
+                        <th class="text-center">Solvers</th>
+                        <th class="text-center">Status</th>
+                        <th>Created</th>
+                        <th class="text-center" style="width:110px;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="adm-table-body">
+                    @foreach (var ch in Model.Challenges)
+                    {
+                        <tr class="adm-table-row"
+                            data-title="@ch.Title.ToLower()"
+                            data-category="@ch.Category"
+                            data-status="@ch.Status">
+                            <td style="color:var(--ca-text-muted);font-size:0.82rem;font-family:'Space Grotesk',sans-serif;">
+                                #@ch.Id
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="ch-card-icon @ChallengeCategories.CssClass(ch.Category)"
+                                         style="width:28px;height:28px;font-size:0.75rem;flex-shrink:0;"
+                                         aria-hidden="true">
+                                        <i class="fas @ChallengeCategories.Icon(ch.Category)"></i>
+                                    </div>
+                                    <div>
+                                        <span style="font-weight:600;font-size:0.875rem;">@ch.Title</span>
+                                        @if (ch.HasAttachment)
+                                        {
+                                            <span class="ms-1" title="Has attachment">
+                                                <i class="fas fa-paperclip" style="color:var(--ca-text-muted);font-size:0.72rem;" aria-hidden="true"></i>
+                                            </span>
+                                        }
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <span style="font-size:0.82rem;color:var(--ca-text-muted);">@ch.Category</span>
+                            </td>
+                            <td>
+                                <span class="ch-diff @ch.DifficultyLower">@ch.Difficulty</span>
+                            </td>
+                            <td class="text-center">
+                                <span style="font-family:'Space Grotesk',sans-serif;font-weight:700;color:var(--ca-accent);">@ch.Points</span>
+                            </td>
+                            <td class="text-center" style="color:var(--ca-text-muted);font-size:0.875rem;">
+                                @ch.SolverCount
+                            </td>
+                            <td class="text-center">
+                                <span class="adm-status @ch.StatusLower">@ch.Status</span>
+                            </td>
+                            <td style="color:var(--ca-text-muted);font-size:0.78rem;white-space:nowrap;">
+                                @ch.CreatedAt.ToString("dd MMM yy")
+                                @if (ch.UpdatedAt.HasValue)
+                                {
+                                    <br /><span style="font-size:0.72rem;opacity:0.7;">Edited @ch.UpdatedAt.Value.ToString("dd MMM yy")</span>
+                                }
+                            </td>
+                            <td class="text-center">
+                                <div class="adm-actions justify-content-center">
+                                    @* View *@
+                                    <a asp-controller="Admin" asp-action="ChallengeDetails" asp-route-id="@ch.Id"
+                                       class="adm-action-btn view"
+                                       title="View"
+                                       aria-label="View @ch.Title"
+                                       id="adm-view-@ch.Id">
+                                        <i class="fas fa-eye" aria-hidden="true"></i>
+                                    </a>
+                                    @* Edit *@
+                                    <a asp-controller="Admin" asp-action="ChallengeEdit" asp-route-id="@ch.Id"
+                                       class="adm-action-btn edit"
+                                       title="Edit"
+                                       aria-label="Edit @ch.Title"
+                                       id="adm-edit-@ch.Id">
+                                        <i class="fas fa-pen" aria-hidden="true"></i>
+                                    </a>
+                                    @* Delete *@
+                                    <form asp-controller="Admin" asp-action="ChallengeDelete" asp-route-id="@ch.Id"
+                                          method="post" class="d-inline"
+                                          id="delete-form-@ch.Id"
+                                          onsubmit="return confirmDelete('@ch.Title', @ch.Id)">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit"
+                                                class="adm-action-btn delete"
+                                                title="Delete"
+                                                aria-label="Delete @ch.Title"
+                                                id="adm-delete-@ch.Id">
+                                            <i class="fas fa-trash" aria-hidden="true"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        @* Empty state *@
+        <div class="ch-empty d-none" id="adm-empty" role="status" aria-live="polite">
+            <i class="fas fa-flag" aria-hidden="true"></i>
+            <h4>No challenges found</h4>
+            <p>Try adjusting your search or filters.</p>
+        </div>
+
+        @* Table footer *@
+        <div style="padding:0.75rem 1.25rem;border-top:1px solid var(--ca-border-light);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.5rem;">
+            <span style="font-size:0.78rem;color:var(--ca-text-muted);">
+                Showing <span id="adm-count-footer">@Model.TotalCount</span> of @Model.TotalCount challenges
+            </span>
+            <a asp-controller="Admin" asp-action="ChallengeCreate"
+               class="btn btn-primary btn-sm">
+                <i class="fas fa-plus me-1" aria-hidden="true"></i>Add Challenge
+            </a>
+        </div>
+    </div>
+
+</div>
+
+@* ─── Delete confirmation modal ──────────────────────────── *@
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:420px;">
+        <div class="modal-content" style="background:var(--ca-bg-card);border:1px solid var(--ca-border);border-radius:var(--ca-radius-xl);">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title" id="deleteModalLabel" style="color:var(--ca-text-primary);">
+                    <i class="fas fa-triangle-exclamation me-2" style="color:var(--ca-danger);" aria-hidden="true"></i>
+                    Confirm Delete
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" style="color:var(--ca-text-secondary);">
+                Are you sure you want to delete <strong id="deleteModalTitle" style="color:var(--ca-text-primary);">this challenge</strong>?
+                <br /><small class="text-muted mt-2 d-block">This action cannot be undone.</small>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteBtn" id="btn-confirm-delete">
+                    <i class="fas fa-trash me-1" aria-hidden="true"></i>Delete
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+(function () {
+    // ── Client-side filter ───────────────────────────────
+    var rows    = document.querySelectorAll('.adm-table-row');
+    var empty   = document.getElementById('adm-empty');
+    var countEl = document.getElementById('adm-visible-count');
+    var footerCount = document.getElementById('adm-count-footer');
+
+    function applyAdmFilters() {
+        var q   = (document.getElementById('adm-search').value || '').toLowerCase().trim();
+        var cat = document.getElementById('adm-cat-filter').value;
+        var st  = document.getElementById('adm-status-filter').value;
+        var vis = 0;
+
+        rows.forEach(function (row) {
+            var title    = row.dataset.title    || '';
+            var category = row.dataset.category || '';
+            var status   = row.dataset.status   || '';
+            var show = (!q || title.includes(q))
+                    && (cat === 'All' || category === cat)
+                    && (st  === 'All' || status   === st);
+            row.style.display = show ? '' : 'none';
+            if (show) vis++;
+        });
+
+        empty.classList.toggle('d-none', vis > 0);
+        if (countEl)      countEl.textContent      = vis;
+        if (footerCount)  footerCount.textContent  = vis;
+    }
+
+    document.getElementById('adm-search').addEventListener('input', applyAdmFilters);
+    document.getElementById('adm-cat-filter').addEventListener('change', applyAdmFilters);
+    document.getElementById('adm-status-filter').addEventListener('change', applyAdmFilters);
+
+    // ── Delete confirmation ───────────────────────────────
+    var pendingFormId = null;
+    var modal = new bootstrap.Modal(document.getElementById('deleteModal'));
+
+    window.confirmDelete = function (title, id) {
+        document.getElementById('deleteModalTitle').textContent = '"' + title + '"';
+        pendingFormId = 'delete-form-' + id;
+        modal.show();
+        return false; // prevent default form submit
+    };
+
+    document.getElementById('confirmDeleteBtn').addEventListener('click', function () {
+        if (pendingFormId) {
+            modal.hide();
+            document.getElementById(pendingFormId).submit();
+        }
+    });
+}());
+</script>
+}

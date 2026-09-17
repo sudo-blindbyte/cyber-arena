@@ -1,0 +1,143 @@
+@model LoginViewModel
+@{
+    Layout = "_AuthLayout";
+    ViewData["Title"] = "Sign In";
+}
+
+<div class="ca-auth-page">
+
+    @* ─── Left Panel ─────────────────────────────────────── *@
+    <div class="ca-auth-left" aria-hidden="true">
+        <div class="ca-auth-grid"></div>
+
+        @* Logo *@
+        <a class="ca-auth-logo" asp-controller="Home" asp-action="Index">
+            <div class="ca-auth-logo-icon">
+                <i class="fas fa-shield-halved"></i>
+            </div>
+            <div>
+                <span class="ca-auth-logo-text">CyberArena</span>
+                <span class="ca-auth-logo-sub">CTF Management Platform</span>
+            </div>
+        </a>
+
+        @* Headline *@
+        <div class="ca-auth-brand">
+            <h2 class="ca-auth-headline">
+                Hack. Compete.<br /><span>Dominate.</span>
+            </h2>
+            <p class="ca-auth-subtext">
+                Join thousands of security researchers competing in real-world
+                Capture The Flag challenges across web, pwn, crypto, forensics and more.
+            </p>
+        </div>
+
+        @* Features *@
+        <div class="ca-auth-features">
+            <div class="ca-auth-feature">
+                <div class="ca-auth-feature-icon"><i class="fas fa-flag"></i></div>
+                <span>100+ challenges across 6 categories</span>
+            </div>
+            <div class="ca-auth-feature">
+                <div class="ca-auth-feature-icon"><i class="fas fa-trophy"></i></div>
+                <span>Real-time leaderboard &amp; rankings</span>
+            </div>
+            <div class="ca-auth-feature">
+                <div class="ca-auth-feature-icon"><i class="fas fa-users"></i></div>
+                <span>Team-based competitions</span>
+            </div>
+        </div>
+
+        <div class="ca-auth-shield" aria-hidden="true">
+            <i class="fas fa-shield-halved"></i>
+        </div>
+    </div>
+
+    @* ─── Right Panel ─────────────────────────────────────── *@
+    <div class="ca-auth-right">
+        <div class="ca-auth-form-wrap">
+
+            <div class="ca-auth-form-header">
+                <h1 class="ca-auth-form-title">Welcome back</h1>
+                <p class="ca-auth-form-subtitle">Sign in to your CyberArena account</p>
+            </div>
+
+            @* Validation summary *@
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div class="alert alert-danger mb-3" role="alert">
+                    <div asp-validation-summary="ModelOnly"></div>
+                </div>
+            }
+
+            <form asp-controller="Account" asp-action="Login" asp-route-returnUrl="@ViewData["ReturnUrl"]"
+                  method="post" data-loading="true" novalidate>
+                @Html.AntiForgeryToken()
+
+                @* Email *@
+                <div class="ca-auth-field">
+                    <label asp-for="Email">Email address</label>
+                    <div class="ca-input-group">
+                        <span class="ca-input-icon"><i class="fas fa-envelope" aria-hidden="true"></i></span>
+                        <input asp-for="Email"
+                               id="login-email"
+                               class="form-control"
+                               type="email"
+                               placeholder="you@example.com"
+                               autocomplete="email"
+                               spellcheck="false" />
+                    </div>
+                    <span asp-validation-for="Email" class="field-validation-error mt-1 d-block"></span>
+                </div>
+
+                @* Password *@
+                <div class="ca-auth-field">
+                    <label asp-for="Password">Password</label>
+                    <div class="ca-input-group">
+                        <span class="ca-input-icon"><i class="fas fa-lock" aria-hidden="true"></i></span>
+                        <input asp-for="Password"
+                               id="login-password"
+                               class="form-control"
+                               type="password"
+                               placeholder="••••••••"
+                               autocomplete="current-password" />
+                        <button class="ca-pwd-toggle" type="button" data-target="login-password" aria-label="Show/hide password">
+                            <i class="fas fa-eye" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                    <span asp-validation-for="Password" class="field-validation-error mt-1 d-block"></span>
+                </div>
+
+                @* Row: Remember me + Forgot *@
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <div class="ca-auth-remember">
+                        <input asp-for="RememberMe" id="login-remember" type="checkbox" />
+                        <label asp-for="RememberMe">Remember me</label>
+                    </div>
+                    <a asp-controller="Account" asp-action="ForgotPassword"
+                       class="ca-forgot-link" style="margin:0; font-size:0.82rem;">
+                        Forgot password?
+                    </a>
+                </div>
+
+                @* Submit *@
+                <button type="submit" id="btn-login" class="ca-auth-submit">
+                    <i class="fas fa-arrow-right-to-bracket me-2" aria-hidden="true"></i>
+                    Sign In
+                </button>
+
+                @* Register link *@
+                <p class="ca-auth-footer-text">
+                    Don't have an account?
+                    <a asp-controller="Account" asp-action="Register">Create one free</a>
+                </p>
+            </form>
+
+        </div>
+    </div>
+
+</div>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+}

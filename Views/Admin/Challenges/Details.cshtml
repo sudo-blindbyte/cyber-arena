@@ -1,0 +1,190 @@
+@model AdminChallengeListItemViewModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = $"Challenge #{Model.Id} — {Model.Title}";
+    ViewData["Breadcrumb"] = "Admin · Challenge Details";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/challenges.css" asp-append-version="true" />
+}
+
+<div class="stagger-children">
+
+    @* ─── Breadcrumb + Actions ────────────────────────────── *@
+    <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+        <nav aria-label="breadcrumb" style="font-size:0.82rem;">
+            <ol class="breadcrumb mb-0" style="background:none;padding:0;">
+                <li class="breadcrumb-item">
+                    <a asp-controller="Admin" asp-action="Challenges" style="color:var(--ca-text-muted);">
+                        <i class="fas fa-shield-halved me-1" aria-hidden="true"></i>Admin
+                    </a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a asp-controller="Admin" asp-action="Challenges" style="color:var(--ca-text-muted);">Challenges</a>
+                </li>
+                <li class="breadcrumb-item active" style="color:var(--ca-text-secondary);" aria-current="page">
+                    #@Model.Id
+                </li>
+            </ol>
+        </nav>
+
+        <div class="d-flex gap-2">
+            <a asp-controller="Admin" asp-action="ChallengeEdit" asp-route-id="@Model.Id"
+               class="btn btn-primary btn-sm" id="btn-admin-edit">
+                <i class="fas fa-pen me-1" aria-hidden="true"></i>Edit
+            </a>
+            <a asp-controller="Admin" asp-action="Challenges"
+               class="btn btn-secondary btn-sm">
+                <i class="fas fa-arrow-left me-1" aria-hidden="true"></i>Back
+            </a>
+        </div>
+    </div>
+
+    <div class="row g-4">
+
+        @* ── Main Info ── *@
+        <div class="col-lg-8">
+            <div class="ch-form-card">
+                <div class="ch-form-section">
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <div class="ch-card-icon @ChallengeCategories.CssClass(Model.Category)"
+                             style="width:44px;height:44px;font-size:1.1rem;" aria-hidden="true">
+                            <i class="fas @ChallengeCategories.Icon(Model.Category)"></i>
+                        </div>
+                        <div>
+                            <h2 style="font-family:'Space Grotesk',sans-serif;font-size:1.25rem;font-weight:700;color:var(--ca-text-primary);margin:0;">
+                                @Model.Title
+                            </h2>
+                            <div class="d-flex gap-2 mt-1">
+                                <span class="ch-diff @Model.DifficultyLower">@Model.Difficulty</span>
+                                <span class="adm-status @Model.StatusLower">@Model.Status</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-sm-6">
+                            <div style="background:var(--ca-bg-base);border-radius:var(--ca-radius);padding:1rem;">
+                                <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--ca-text-muted);margin-bottom:0.4rem;">Category</div>
+                                <div style="font-size:0.9rem;color:var(--ca-text-primary);">@Model.Category</div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div style="background:var(--ca-bg-base);border-radius:var(--ca-radius);padding:1rem;">
+                                <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--ca-text-muted);margin-bottom:0.4rem;">Difficulty</div>
+                                <span class="ch-diff @Model.DifficultyLower">@Model.Difficulty</span>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div style="background:var(--ca-bg-base);border-radius:var(--ca-radius);padding:1rem;">
+                                <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--ca-text-muted);margin-bottom:0.4rem;">Points</div>
+                                <div style="font-family:'Space Grotesk',sans-serif;font-size:1.5rem;font-weight:700;color:var(--ca-accent);">@Model.Points</div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div style="background:var(--ca-bg-base);border-radius:var(--ca-radius);padding:1rem;">
+                                <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--ca-text-muted);margin-bottom:0.4rem;">Solvers</div>
+                                <div style="font-family:'Space Grotesk',sans-serif;font-size:1.5rem;font-weight:700;color:var(--ca-text-primary);">@Model.SolverCount</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="ch-form-section">
+                    <div class="ch-form-section-title">
+                        <i class="fas fa-calendar-plus" aria-hidden="true"></i> Timeline
+                    </div>
+                    <div class="d-flex gap-3 flex-wrap">
+                        <div>
+                            <div style="font-size:0.72rem;color:var(--ca-text-muted);margin-bottom:0.2rem;">Created</div>
+                            <div style="font-size:0.875rem;color:var(--ca-text-primary);">@Model.CreatedAt.ToString("dd MMM yyyy, HH:mm")</div>
+                        </div>
+                        @if (Model.UpdatedAt.HasValue)
+                        {
+                            <div>
+                                <div style="font-size:0.72rem;color:var(--ca-text-muted);margin-bottom:0.2rem;">Last Updated</div>
+                                <div style="font-size:0.875rem;color:var(--ca-text-primary);">@Model.UpdatedAt.Value.ToString("dd MMM yyyy, HH:mm")</div>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                @if (Model.HasAttachment)
+                {
+                    <div class="ch-form-section">
+                        <div class="ch-form-section-title">
+                            <i class="fas fa-paperclip" aria-hidden="true"></i> Attachment
+                        </div>
+                        <div class="ch-file-item" style="max-width:320px;">
+                            <i class="fas fa-file-zipper ch-file-icon" aria-hidden="true"></i>
+                            <span class="ch-file-name">challenge_@(Model.Id)_files.zip</span>
+                            <i class="fas fa-download" style="color:var(--ca-text-muted);font-size:0.8rem;" aria-hidden="true"></i>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        @* ── Sidebar ── *@
+        <div class="col-lg-4">
+            <div class="ch-form-card mb-4">
+                <div class="ch-form-section">
+                    <div class="ch-form-section-title">
+                        <i class="fas fa-bolt" aria-hidden="true"></i> Admin Actions
+                    </div>
+                    <div class="d-flex flex-column gap-2">
+                        <a asp-controller="Admin" asp-action="ChallengeEdit" asp-route-id="@Model.Id"
+                           class="btn btn-primary w-100" id="btn-detail-edit">
+                            <i class="fas fa-pen me-2" aria-hidden="true"></i>Edit Challenge
+                        </a>
+                        <a asp-controller="Challenges" asp-action="Details" asp-route-id="@Model.Id"
+                           class="btn btn-secondary w-100" target="_blank" id="btn-detail-preview">
+                            <i class="fas fa-eye me-2" aria-hidden="true"></i>Preview as Participant
+                        </a>
+                        <form asp-controller="Admin" asp-action="ChallengeDelete" asp-route-id="@Model.Id"
+                              method="post"
+                              onsubmit="return confirm('Delete this challenge? This cannot be undone.');">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-outline-danger w-100" id="btn-detail-delete">
+                                <i class="fas fa-trash me-2" aria-hidden="true"></i>Delete Challenge
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="ch-form-card">
+                <div class="ch-form-section">
+                    <div class="ch-form-section-title">
+                        <i class="fas fa-chart-bar" aria-hidden="true"></i> Statistics
+                    </div>
+                    <div class="d-flex flex-column gap-3">
+                        <div class="d-flex justify-content-between">
+                            <span style="font-size:0.82rem;color:var(--ca-text-muted);">Challenge ID</span>
+                            <span style="font-family:'Space Grotesk',sans-serif;font-weight:600;color:var(--ca-text-primary);">#@Model.Id</span>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span style="font-size:0.82rem;color:var(--ca-text-muted);">Points</span>
+                            <span style="font-family:'Space Grotesk',sans-serif;font-weight:700;color:var(--ca-accent);">@Model.Points pts</span>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span style="font-size:0.82rem;color:var(--ca-text-muted);">Solvers</span>
+                            <span style="font-weight:600;color:var(--ca-text-primary);">@Model.SolverCount</span>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span style="font-size:0.82rem;color:var(--ca-text-muted);">Status</span>
+                            <span class="adm-status @Model.StatusLower">@Model.Status</span>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span style="font-size:0.82rem;color:var(--ca-text-muted);">Attachment</span>
+                            <span style="font-size:0.82rem;color:var(--ca-text-primary);">@(Model.HasAttachment ? "Yes" : "No")</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>

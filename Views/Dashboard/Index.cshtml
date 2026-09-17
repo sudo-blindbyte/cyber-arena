@@ -1,0 +1,357 @@
+@model DashboardViewModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="stagger-children">
+
+    @* ─── Welcome Header ───────────────────────────────────── *@
+    <div class="d-flex align-items-start justify-content-between mb-4 flex-wrap gap-3">
+        <div>
+            <h2 style="font-family:'Space Grotesk',sans-serif;font-size:1.5rem;font-weight:700;color:var(--ca-text-primary);margin-bottom:0.2rem;">
+                Welcome back, <span style="color:var(--ca-accent);">@Model.Username</span> 👋
+            </h2>
+            <p style="color:var(--ca-text-muted);font-size:0.875rem;margin:0;">
+                @DateTime.Now.ToString("dddd, dd MMMM yyyy") &nbsp;·&nbsp;
+                @if (!string.IsNullOrEmpty(Model.TeamName))
+                {
+                    <span><i class="fas fa-users me-1" aria-hidden="true"></i>@Model.TeamName</span>
+                }
+            </p>
+        </div>
+        <div class="d-flex gap-2">
+            <a asp-controller="Challenges" asp-action="Index"
+               class="btn btn-primary btn-sm" id="btn-browse-challenges">
+                <i class="fas fa-flag me-1" aria-hidden="true"></i>Browse Challenges
+            </a>
+            <a asp-controller="Competitions" asp-action="Index"
+               class="btn btn-secondary btn-sm" id="btn-competitions">
+                <i class="fas fa-bolt me-1" aria-hidden="true"></i>Competitions
+            </a>
+        </div>
+    </div>
+
+    @* ─── Stat Cards ────────────────────────────────────────── *@
+    <div class="row g-3 mb-4">
+
+        @* Total Score *@
+        <div class="col-6 col-xl-3">
+            <div class="ca-stat-card accent" role="region" aria-label="Total score">
+                <div class="ca-stat-info">
+                    <div class="ca-stat-label">Total Score</div>
+                    <div class="ca-stat-value" data-count="@Model.TotalScore">@Model.TotalScore.ToString("N0")</div>
+                    <div class="ca-stat-delta up">
+                        <i class="fas fa-arrow-trend-up" aria-hidden="true"></i>
+                        +@Model.ScoreDelta pts today
+                    </div>
+                </div>
+                <div class="ca-stat-icon" aria-hidden="true"><i class="fas fa-star"></i></div>
+            </div>
+        </div>
+
+        @* Challenges Solved *@
+        <div class="col-6 col-xl-3">
+            <div class="ca-stat-card success" role="region" aria-label="Challenges solved">
+                <div class="ca-stat-info">
+                    <div class="ca-stat-label">Challenges Solved</div>
+                    <div class="ca-stat-value" data-count="@Model.ChallengesSolved">@Model.ChallengesSolved</div>
+                    <div class="ca-stat-delta neutral">
+                        of @Model.TotalChallenges total &nbsp;·&nbsp; @Model.SolvedPercent%
+                    </div>
+                </div>
+                <div class="ca-stat-icon" aria-hidden="true"><i class="fas fa-flag-checkered"></i></div>
+            </div>
+        </div>
+
+        @* Global Rank *@
+        <div class="col-6 col-xl-3">
+            <div class="ca-stat-card warning" role="region" aria-label="Global rank">
+                <div class="ca-stat-info">
+                    <div class="ca-stat-label">Global Rank</div>
+                    <div class="ca-stat-value">#@Model.CurrentRank</div>
+                    <div class="ca-stat-delta @(Model.RankDelta > 0 ? "up" : "down")">
+                        <i class="fas fa-arrow-@(Model.RankDelta > 0 ? "up" : "down")" aria-hidden="true"></i>
+                        @(Model.RankDelta > 0 ? "+" : "")@Model.RankDelta positions
+                    </div>
+                </div>
+                <div class="ca-stat-icon" aria-hidden="true"><i class="fas fa-trophy"></i></div>
+            </div>
+        </div>
+
+        @* Team Rank *@
+        <div class="col-6 col-xl-3">
+            <div class="ca-stat-card info" role="region" aria-label="Team rank">
+                <div class="ca-stat-info">
+                    <div class="ca-stat-label">Team Rank</div>
+                    <div class="ca-stat-value">#@Model.TeamRank</div>
+                    <div class="ca-stat-delta neutral">
+                        @(Model.TeamName ?? "No team")
+                    </div>
+                </div>
+                <div class="ca-stat-icon" aria-hidden="true"><i class="fas fa-users"></i></div>
+            </div>
+        </div>
+
+    </div>
+
+    @* ─── Main Grid ─────────────────────────────────────────── *@
+    <div class="row g-4">
+
+        @* ── Left Column (8 cols) ── *@
+        <div class="col-lg-8">
+
+            @* Score History Chart *@
+            <div class="ca-card mb-4">
+                <div class="ca-card-header">
+                    <div>
+                        <h3 class="ca-card-title">Score Progression</h3>
+                        <p class="ca-card-subtitle">Last 7 days</p>
+                    </div>
+                    <span class="ca-tag success">
+                        <i class="fas fa-arrow-trend-up me-1" aria-hidden="true"></i>+@Model.ScoreDelta pts
+                    </span>
+                </div>
+                <div class="ca-chart-placeholder" role="img" aria-label="Score history bar chart">
+                    @{int delay = 0;}
+                    @foreach (var pt in Model.ScoreHistory)
+                    {
+                        <div class="ca-chart-bar @(pt.IsHighest ? "active" : "")"
+                             data-height="@pt.HeightPercent"
+                             data-delay="@delay"
+                             title="@pt.Label: @pt.Score.ToString("N0") pts"
+                             role="img"
+                             aria-label="@pt.Label: @pt.Score.ToString("N0") points">
+                        </div>
+                        delay += 70;
+                    }
+                </div>
+                <div class="d-flex justify-content-between mt-2 px-1">
+                    @foreach (var pt in Model.ScoreHistory)
+                    {
+                        <span style="font-size:0.68rem;color:var(--ca-text-muted);flex:1;text-align:center;">@pt.Label</span>
+                    }
+                </div>
+            </div>
+
+            @* Recent Submissions Table *@
+            <div class="ca-card mb-4">
+                <div class="ca-card-header">
+                    <div>
+                        <h3 class="ca-card-title">Recent Submissions</h3>
+                        <p class="ca-card-subtitle">Your latest flag captures</p>
+                    </div>
+                    <a href="#" class="btn btn-secondary btn-sm" style="font-size:0.78rem;">
+                        View all <i class="fas fa-arrow-right ms-1" aria-hidden="true"></i>
+                    </a>
+                </div>
+
+                @if (Model.RecentSubmissions.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table" aria-label="Recent submissions">
+                            <thead>
+                                <tr>
+                                    <th>Challenge</th>
+                                    <th>Category</th>
+                                    <th>Difficulty</th>
+                                    <th class="text-end">Points</th>
+                                    <th class="text-end">Time</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var sub in Model.RecentSubmissions)
+                                {
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center gap-2">
+                                                <i class="fas fa-circle-check" style="color:var(--ca-success);font-size:0.8rem;" aria-hidden="true"></i>
+                                                <span style="font-weight:500;">@sub.ChallengeName</span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="ca-tag" style="background:var(--ca-accent-light);color:var(--ca-accent);">
+                                                @sub.Category
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span class="ca-tag @sub.Difficulty">@sub.Difficulty.ToUpper()</span>
+                                        </td>
+                                        <td class="text-end">
+                                            <span style="font-family:'Space Grotesk',sans-serif;font-weight:700;color:var(--ca-success);">
+                                                +@sub.Points
+                                            </span>
+                                        </td>
+                                        <td class="text-end" style="color:var(--ca-text-muted);font-size:0.8rem;white-space:nowrap;">
+                                            @sub.SolvedAt.ToString("HH:mm · dd MMM")
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="ca-empty-state">
+                        <i class="fas fa-flag" aria-hidden="true"></i>
+                        <p>No submissions yet. Start solving challenges!</p>
+                    </div>
+                }
+            </div>
+
+            @* Category Progress *@
+            <div class="ca-card">
+                <div class="ca-card-header">
+                    <h3 class="ca-card-title">Category Progress</h3>
+                </div>
+                <div class="row g-3">
+                    @foreach (var cat in Model.CategoryProgress)
+                    {
+                        <div class="col-sm-6">
+                            <div style="background:var(--ca-bg-base);border-radius:var(--ca-radius);padding:1rem;">
+                                <div class="d-flex align-items-center justify-content-between mb-2">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span style="width:28px;height:28px;border-radius:var(--ca-radius-sm);background:var(--ca-accent-light);color:var(--ca-accent);display:flex;align-items:center;justify-content:center;font-size:0.8rem;" aria-hidden="true">
+                                            <i class="fas @cat.Icon"></i>
+                                        </span>
+                                        <span style="font-size:0.875rem;font-weight:600;color:var(--ca-text-primary);">@cat.Name</span>
+                                    </div>
+                                    <span style="font-size:0.78rem;color:var(--ca-text-muted);">@cat.Solved/@cat.Total</span>
+                                </div>
+                                <div class="ca-progress">
+                                    <div class="ca-progress-bar" data-width="@cat.Percent"></div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+        </div>
+
+        @* ── Right Column (4 cols) ── *@
+        <div class="col-lg-4">
+
+            @* Active Competitions *@
+            <div class="ca-card mb-4">
+                <div class="ca-card-header">
+                    <h3 class="ca-card-title">Active Competitions</h3>
+                    <span class="ca-nav-badge" style="position:static;">@Model.ActiveCompetitions.Count</span>
+                </div>
+
+                @if (Model.ActiveCompetitions.Any())
+                {
+                    <div class="d-flex flex-column gap-3">
+                        @foreach (var comp in Model.ActiveCompetitions)
+                        {
+                            <div class="ca-comp-card">
+                                <div class="ca-comp-card-header">
+                                    <div>
+                                        <div class="ca-comp-name">@comp.Name</div>
+                                        <div class="ca-comp-meta">
+                                            <i class="fas fa-clock" aria-hidden="true"></i>
+                                            @comp.TimeRemaining remaining
+                                        </div>
+                                    </div>
+                                    <span class="ca-comp-status @comp.Status">@comp.Status.ToUpper()</span>
+                                </div>
+
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span style="font-size:0.78rem;color:var(--ca-text-muted);">
+                                        Rank: <strong style="color:var(--ca-text-primary);">#@comp.TeamRank / @comp.TotalTeams</strong>
+                                    </span>
+                                    <span style="font-size:0.78rem;color:var(--ca-text-muted);">
+                                        Score: <strong style="color:var(--ca-accent);">@comp.Score.ToString("N0")</strong>
+                                    </span>
+                                </div>
+
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span style="font-size:0.75rem;color:var(--ca-text-muted);">Flags captured</span>
+                                    <span style="font-size:0.75rem;color:var(--ca-text-muted);">@comp.ChallengesSolved/@comp.TotalChallenges</span>
+                                </div>
+                                <div class="ca-progress">
+                                    <div class="ca-progress-bar" data-width="@comp.ProgressPercent"></div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="ca-empty-state">
+                        <i class="fas fa-bolt" aria-hidden="true"></i>
+                        <p>No active competitions. Check the Competitions page.</p>
+                    </div>
+                }
+            </div>
+
+            @* Recent Activity *@
+            <div class="ca-card mb-4">
+                <div class="ca-card-header">
+                    <h3 class="ca-card-title">Recent Activity</h3>
+                </div>
+
+                @if (Model.RecentActivities.Any())
+                {
+                    <ul class="ca-activity-list" role="list" aria-label="Recent activity">
+                        @foreach (var act in Model.RecentActivities)
+                        {
+                            <li class="ca-activity-item">
+                                <div class="ca-activity-icon"
+                                     style="background:var(--ca-@(act.IconColorClass == "accent" ? "accent" : act.IconColorClass)-light, var(--ca-accent-light));color:var(--ca-@(act.IconColorClass == "accent" ? "accent" : act.IconColorClass), var(--ca-accent));"
+                                     aria-hidden="true">
+                                    <i class="fas @act.Icon"></i>
+                                </div>
+                                <div class="ca-activity-body">
+                                    <div class="ca-activity-text">@Html.Raw(act.Text)</div>
+                                    <div class="ca-activity-time">
+                                        <i class="fas fa-clock me-1" aria-hidden="true"></i>@act.TimeAgo
+                                    </div>
+                                </div>
+                            </li>
+                        }
+                    </ul>
+                }
+                else
+                {
+                    <div class="ca-empty-state">
+                        <i class="fas fa-clock" aria-hidden="true"></i>
+                        <p>No recent activity.</p>
+                    </div>
+                }
+            </div>
+
+            @* Quick Actions *@
+            <div class="ca-card">
+                <div class="ca-card-header">
+                    <h3 class="ca-card-title">Quick Actions</h3>
+                </div>
+                <div class="ca-quick-actions">
+                    <a asp-controller="Challenges" asp-action="Index"
+                       class="ca-quick-btn" id="qa-challenges">
+                        <i class="fas fa-flag" aria-hidden="true"></i>
+                        Solve Challenge
+                    </a>
+                    <a asp-controller="Leaderboard" asp-action="Index"
+                       class="ca-quick-btn" id="qa-leaderboard">
+                        <i class="fas fa-list-ol" aria-hidden="true"></i>
+                        Leaderboard
+                    </a>
+                    <a asp-controller="Teams" asp-action="Index"
+                       class="ca-quick-btn" id="qa-team">
+                        <i class="fas fa-users" aria-hidden="true"></i>
+                        My Team
+                    </a>
+                    <a asp-controller="Account" asp-action="Profile"
+                       class="ca-quick-btn" id="qa-profile">
+                        <i class="fas fa-circle-user" aria-hidden="true"></i>
+                        Edit Profile
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</div>

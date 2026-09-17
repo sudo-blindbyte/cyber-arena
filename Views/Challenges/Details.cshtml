@@ -1,0 +1,343 @@
+@model ChallengeDetailViewModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = Model.Title;
+    ViewData["Breadcrumb"] = "Challenges";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/challenges.css" asp-append-version="true" />
+}
+
+@* ─── Flash from redirect ─────────────────────────────────── *@
+@if (TempData["SubmitResult"] != null)
+{
+    bool correct = TempData["SubmitResult"]?.ToString() == "correct";
+    <div class="alert @(correct ? "alert-success" : "alert-danger") ca-auto-dismiss d-flex align-items-center gap-2 mb-3" role="alert">
+        <i class="fas @(correct ? "fa-circle-check" : "fa-circle-xmark") fa-fw" aria-hidden="true"></i>
+        <span>@TempData["SubmitMsg"]</span>
+    </div>
+}
+
+@* ─── Breadcrumb + nav ────────────────────────────────────── *@
+<div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+    <nav aria-label="breadcrumb" style="font-size:0.82rem;">
+        <ol class="breadcrumb mb-0" style="background:none;padding:0;">
+            <li class="breadcrumb-item">
+                <a asp-controller="Challenges" asp-action="Index" style="color:var(--ca-text-muted);">
+                    <i class="fas fa-flag me-1" aria-hidden="true"></i>Challenges
+                </a>
+            </li>
+            <li class="breadcrumb-item active" style="color:var(--ca-text-secondary);" aria-current="page">
+                @Model.Title
+            </li>
+        </ol>
+    </nav>
+
+    @* Prev / Next navigation *@
+    <div class="d-flex gap-2">
+        @if (Model.PrevChallengeId.HasValue)
+        {
+            <a asp-controller="Challenges" asp-action="Details" asp-route-id="@Model.PrevChallengeId"
+               class="btn btn-secondary btn-sm" id="btn-prev-challenge">
+                <i class="fas fa-arrow-left me-1" aria-hidden="true"></i>Prev
+            </a>
+        }
+        @if (Model.NextChallengeId.HasValue)
+        {
+            <a asp-controller="Challenges" asp-action="Details" asp-route-id="@Model.NextChallengeId"
+               class="btn btn-secondary btn-sm" id="btn-next-challenge">
+                Next <i class="fas fa-arrow-right ms-1" aria-hidden="true"></i>
+            </a>
+        }
+    </div>
+</div>
+
+@* ─── Main Layout ─────────────────────────────────────────── *@
+<div class="ch-detail-layout">
+
+    @* ── Left Column: Description + Hints + Files ── *@
+    <div>
+        @* Challenge card *@
+        <div class="ch-detail-card mb-4">
+
+            @* Header *@
+            <div class="ch-detail-header">
+                <h1 class="ch-detail-title">@Model.Title</h1>
+                <div class="ch-detail-badges">
+                    <div class="ch-card-icon @Model.CategoryCssClass" style="width:32px;height:32px;font-size:0.85rem;" aria-hidden="true">
+                        <i class="fas @Model.CategoryIcon"></i>
+                    </div>
+                    <span style="font-size:0.875rem;color:var(--ca-text-secondary);">@Model.Category</span>
+                    <span class="ch-diff @Model.DifficultyLower">@Model.Difficulty</span>
+                    @if (Model.IsSolved)
+                    {
+                        <span class="ch-solved-badge">
+                            <i class="fas fa-circle-check" aria-hidden="true"></i> Solved
+                            @if (Model.SolvedAt.HasValue) { <span>· @Model.SolvedAt.Value.ToString("dd MMM")</span> }
+                        </span>
+                    }
+                </div>
+            </div>
+
+            @* Body *@
+            <div class="ch-detail-body">
+
+                @* Description *@
+                <div class="mb-3">
+                    <h2 style="font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--ca-text-muted);margin-bottom:0.75rem;">
+                        <i class="fas fa-align-left me-1" aria-hidden="true"></i> Description
+                    </h2>
+                    <div class="ch-description">@Model.Description</div>
+                </div>
+
+                @* Attachments *@
+                @if (Model.Attachments.Any())
+                {
+                    <div class="ch-files-section">
+                        <h3 class="ch-detail-section-label" style="font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--ca-text-muted);margin-bottom:0.75rem;">
+                            <i class="fas fa-paperclip me-1" aria-hidden="true"></i> Files & Downloads
+                        </h3>
+                        @foreach (var file in Model.Attachments)
+                        {
+                            <a class="ch-file-item" href="@file.DownloadUrl" download aria-label="Download @file.FileName">
+                                <i class="fas @file.FileIcon ch-file-icon" aria-hidden="true"></i>
+                                <span class="ch-file-name">@file.FileName</span>
+                                <span class="ch-file-size">@file.FileSize</span>
+                                <i class="fas fa-download" style="color:var(--ca-text-muted);font-size:0.8rem;" aria-hidden="true"></i>
+                            </a>
+                        }
+                    </div>
+                }
+
+                @* Hints *@
+                @if (Model.Hints.Any())
+                {
+                    <div class="ch-hint-section">
+                        <h3 style="font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--ca-text-muted);margin-bottom:0.75rem;">
+                            <i class="fas fa-lightbulb me-1" style="color:var(--ca-warning);" aria-hidden="true"></i>
+                            Hints (@Model.Hints.Count available)
+                        </h3>
+                        @foreach (var hint in Model.Hints)
+                        {
+                            <div class="ch-hint-card mb-2">
+                                <button class="ch-hint-toggle"
+                                        id="hint-toggle-@hint.Number"
+                                        onclick="toggleHint(@hint.Number)"
+                                        aria-expanded="false"
+                                        aria-controls="hint-body-@hint.Number">
+                                    <span>
+                                        <i class="fas fa-lightbulb me-1" aria-hidden="true"></i>
+                                        Hint @hint.Number
+                                        @if (hint.PointPenalty > 0)
+                                        {
+                                            <span style="font-size:0.72rem;opacity:0.7;">(−@hint.PointPenalty pts penalty)</span>
+                                        }
+                                    </span>
+                                    <i class="fas fa-chevron-down" id="hint-chevron-@hint.Number" aria-hidden="true"></i>
+                                </button>
+                                <div class="ch-hint-body" id="hint-body-@hint.Number" role="region" aria-labelledby="hint-toggle-@hint.Number">
+                                    @hint.Text
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+
+            </div>
+        </div>
+
+        @* ─── Solve stats section ─────────────────────────── *@
+        <div class="ca-card">
+            <div class="ca-card-header">
+                <h3 class="ca-card-title">
+                    <i class="fas fa-chart-bar me-2" style="color:var(--ca-accent);" aria-hidden="true"></i>
+                    Challenge Statistics
+                </h3>
+            </div>
+            <div class="row g-3">
+                <div class="col-6 col-md-3">
+                    <div class="ch-stat-mini">
+                        <span class="ch-stat-mini-value" data-count="@Model.Points">@Model.Points</span>
+                        <span class="ch-stat-mini-label">Points</span>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="ch-stat-mini">
+                        <span class="ch-stat-mini-value" data-count="@Model.SolverCount">@Model.SolverCount</span>
+                        <span class="ch-stat-mini-label">Solvers</span>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="ch-stat-mini">
+                        <span class="ch-stat-mini-value">@Model.SolvePercent%</span>
+                        <span class="ch-stat-mini-label">Solve Rate</span>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="ch-stat-mini">
+                        <span class="ch-stat-mini-value">@Model.Hints.Count</span>
+                        <span class="ch-stat-mini-label">Hints</span>
+                    </div>
+                </div>
+            </div>
+            @if (Model.SolverCount > 0)
+            {
+                <div class="mt-3">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span style="font-size:0.78rem;color:var(--ca-text-muted);">Solve progress</span>
+                        <span style="font-size:0.78rem;color:var(--ca-text-muted);">@Model.SolvePercent%</span>
+                    </div>
+                    <div class="ca-progress">
+                        <div class="ca-progress-bar @(Model.SolvePercent > 60 ? "success" : Model.SolvePercent > 30 ? "" : "danger")"
+                             data-width="@Model.SolvePercent"></div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+    @* ── Right Column: Flag Submit + Quick Stats ── *@
+    <div>
+        <div class="ch-flag-card">
+
+            <div class="ch-flag-header">
+                <h2 class="ch-flag-title">
+                    <i class="fas fa-flag me-2" style="color:var(--ca-accent);" aria-hidden="true"></i>
+                    Submit Flag
+                </h2>
+            </div>
+
+            <div class="ch-flag-body">
+
+                @* Challenge quick stats *@
+                <div class="ch-stats-grid">
+                    <div class="ch-stat-mini">
+                        <span class="ch-stat-mini-value" style="color:var(--ca-accent);">@Model.Points</span>
+                        <span class="ch-stat-mini-label">Points</span>
+                    </div>
+                    <div class="ch-stat-mini">
+                        <span class="ch-stat-mini-value">#@(Model.SolvedRank.HasValue ? Model.SolvedRank.Value.ToString() : "—")</span>
+                        <span class="ch-stat-mini-label">Your rank</span>
+                    </div>
+                    <div class="ch-stat-mini">
+                        <span class="ch-stat-mini-value">@Model.SolverCount</span>
+                        <span class="ch-stat-mini-label">Solvers</span>
+                    </div>
+                    <div class="ch-stat-mini">
+                        <span class="ch-stat-mini-value">
+                            @{ var diffColor = Model.Difficulty switch { "Easy" => "var(--ca-success)", "Hard" => "var(--ca-danger)", _ => "var(--ca-warning)" }; }
+                            <span style="color:@diffColor;font-size:0.9rem;">@Model.Difficulty</span>
+                        </span>
+                        <span class="ch-stat-mini-label">Difficulty</span>
+                    </div>
+                </div>
+
+                @* Already-solved notice *@
+                @if (Model.IsSolved)
+                {
+                    <div class="ch-already-solved" role="status">
+                        <i class="fas fa-circle-check" aria-hidden="true"></i>
+                        <div>
+                            <span style="font-weight:600;display:block;">Already solved!</span>
+                            @if (Model.SolvedAt.HasValue)
+                            {
+                                <span style="font-size:0.8rem;opacity:0.8;">@Model.SolvedAt.Value.ToString("dd MMM yyyy, HH:mm")</span>
+                            }
+                        </div>
+                    </div>
+                }
+
+                @* Submission result from POST *@
+                @if (Model.SubmissionResult.HasValue)
+                {
+                    <div class="ch-submit-result @(Model.SubmissionResult == FlagSubmissionResult.Correct ? "correct" : "incorrect")"
+                         style="display:flex;" role="alert">
+                        <i class="fas @(Model.SubmissionResult == FlagSubmissionResult.Correct ? "fa-circle-check" : "fa-circle-xmark")" aria-hidden="true"></i>
+                        @(Model.SubmissionResult == FlagSubmissionResult.Correct ? "Correct! Flag accepted." : "Incorrect flag. Try again!")
+                    </div>
+                }
+
+                @* Flag submission form *@
+                <form asp-controller="Challenges" asp-action="Submit" asp-route-id="@Model.Id"
+                      method="post" class="ch-flag-form" id="flag-form" novalidate>
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="ChallengeId" value="@Model.Id" />
+
+                    <label class="ch-flag-label" for="flag-input">
+                        <i class="fas fa-terminal me-1" aria-hidden="true"></i> Enter Flag
+                    </label>
+                    <div class="ch-flag-input-wrap">
+                        <i class="fas fa-flag ch-flag-icon" aria-hidden="true"></i>
+                        <input type="text"
+                               id="flag-input"
+                               name="Flag"
+                               class="ch-flag-input"
+                               placeholder="CTF{your_flag_here}"
+                               autocomplete="off"
+                               spellcheck="false"
+                               @(Model.IsSolved ? "readonly" : "")
+                               aria-label="Flag input"
+                               aria-describedby="flag-hint" />
+                    </div>
+                    <p id="flag-hint" style="font-size:0.75rem;color:var(--ca-text-muted);margin-top:0.4rem;margin-bottom:0;">
+                        Format: <code style="color:var(--ca-accent);background:var(--ca-accent-light);padding:0.1em 0.4em;border-radius:3px;">CTF{...}</code>
+                    </p>
+                    <span asp-validation-for="@(new FlagSubmissionViewModel())" class="field-validation-error d-block mt-1"></span>
+
+                    <button type="submit"
+                            id="btn-submit-flag"
+                            class="ch-flag-submit"
+                            @(Model.IsSolved ? "disabled" : "")>
+                        <i class="fas fa-paper-plane me-2" aria-hidden="true"></i>
+                        @(Model.IsSolved ? "Already Solved" : "Submit Flag")
+                    </button>
+                </form>
+
+                @* Hint reminder *@
+                @if (Model.Hints.Any() && !Model.IsSolved)
+                {
+                    <div class="mt-3 pt-3" style="border-top:1px solid var(--ca-border-light);">
+                        <p style="font-size:0.78rem;color:var(--ca-text-muted);margin:0;">
+                            <i class="fas fa-lightbulb me-1" style="color:var(--ca-warning);" aria-hidden="true"></i>
+                            Stuck? Scroll down to see <strong>@Model.Hints.Count hint@(Model.Hints.Count > 1 ? "s" : "")</strong> available.
+                        </p>
+                    </div>
+                }
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+    <script>
+        // Hint toggle
+        function toggleHint(num) {
+            var body    = document.getElementById('hint-body-'    + num);
+            var chevron = document.getElementById('hint-chevron-' + num);
+            var btn     = document.getElementById('hint-toggle-'  + num);
+            var isOpen  = body.classList.contains('show');
+            body.classList.toggle('show', !isOpen);
+            if (chevron) chevron.style.transform = isOpen ? '' : 'rotate(180deg)';
+            if (btn) btn.setAttribute('aria-expanded', (!isOpen).toString());
+        }
+
+        // Flag form — basic client-side length check only (actual verification is server-side)
+        document.getElementById('flag-form')?.addEventListener('submit', function (e) {
+            var val = document.getElementById('flag-input').value.trim();
+            if (!val) {
+                e.preventDefault();
+                document.getElementById('flag-input').style.borderColor = 'var(--ca-danger)';
+                document.getElementById('flag-input').focus();
+            }
+        });
+
+        // Clear error styling on input
+        document.getElementById('flag-input')?.addEventListener('input', function () {
+            this.style.borderColor = '';
+        });
+    </script>
+}

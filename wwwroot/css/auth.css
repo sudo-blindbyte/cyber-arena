@@ -1,0 +1,430 @@
+/* ============================================================
+   CyberArena — Authentication Pages (Split Panel Layout)
+   ============================================================ */
+
+/* ─── Auth Shell ─────────────────────────────────────────── */
+.ca-auth-page {
+    min-height: 100vh;
+    display: flex;
+    background: var(--ca-bg-base);
+}
+
+/* ─── Left Panel (Brand / Hero) ──────────────────────────── */
+.ca-auth-left {
+    width: 42%;
+    background: linear-gradient(160deg, #0D1B3E 0%, #0F1117 50%, #0a1628 100%);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 3.5rem;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+/* Background mesh / glow */
+.ca-auth-left::before {
+    content: '';
+    position: absolute;
+    top: -20%;
+    left: -20%;
+    width: 70%;
+    height: 70%;
+    background: radial-gradient(ellipse, rgba(59,130,246,0.18) 0%, transparent 70%);
+    pointer-events: none;
+}
+.ca-auth-left::after {
+    content: '';
+    position: absolute;
+    bottom: -15%;
+    right: -15%;
+    width: 60%;
+    height: 60%;
+    background: radial-gradient(ellipse, rgba(99,102,241,0.12) 0%, transparent 70%);
+    pointer-events: none;
+}
+
+/* Grid lines decoration */
+.ca-auth-grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+        linear-gradient(rgba(59,130,246,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(59,130,246,0.04) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+}
+
+.ca-auth-brand {
+    position: relative;
+    z-index: 1;
+    margin-bottom: 2.5rem;
+}
+
+.ca-auth-logo {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    margin-bottom: 3rem;
+    text-decoration: none;
+}
+.ca-auth-logo-icon {
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, #3B82F6, #6366F1);
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    color: #fff;
+    box-shadow: 0 6px 24px rgba(59,130,246,0.4);
+    animation: pulse-glow 2.5s ease-in-out infinite;
+}
+.ca-auth-logo-text {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: -0.02em;
+}
+.ca-auth-logo-sub {
+    font-size: 0.72rem;
+    color: rgba(148,163,184,0.7);
+    font-weight: 400;
+    display: block;
+    margin-top: -2px;
+}
+
+.ca-auth-headline {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 2.1rem;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.25;
+    margin-bottom: 1rem;
+}
+.ca-auth-headline span {
+    background: linear-gradient(135deg, #3B82F6, #818CF8);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+.ca-auth-subtext {
+    font-size: 0.95rem;
+    color: rgba(148,163,184,0.85);
+    line-height: 1.65;
+    max-width: 320px;
+}
+
+/* Feature bullets on auth left */
+.ca-auth-features {
+    position: relative;
+    z-index: 1;
+    margin-top: 2.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+}
+.ca-auth-feature {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.875rem;
+    color: rgba(148,163,184,0.85);
+}
+.ca-auth-feature-icon {
+    width: 30px;
+    height: 30px;
+    border-radius: var(--ca-radius-sm);
+    background: rgba(59,130,246,0.12);
+    border: 1px solid rgba(59,130,246,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    color: #3B82F6;
+    flex-shrink: 0;
+}
+
+/* Floating "shield" decoration */
+.ca-auth-shield {
+    position: absolute;
+    bottom: 2.5rem;
+    right: 2.5rem;
+    z-index: 1;
+    font-size: 7rem;
+    color: rgba(59,130,246,0.06);
+    line-height: 1;
+    user-select: none;
+}
+
+/* ─── Right Panel (Form) ──────────────────────────────────── */
+.ca-auth-right {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 2.5rem 2rem;
+    background: var(--ca-bg-base);
+    overflow-y: auto;
+}
+
+.ca-auth-form-wrap {
+    width: 100%;
+    max-width: 420px;
+    animation: fadeInUp 0.5s ease forwards;
+}
+
+.ca-auth-form-header {
+    margin-bottom: 2rem;
+    text-align: left;
+}
+.ca-auth-form-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.65rem;
+    font-weight: 700;
+    color: var(--ca-text-primary);
+    margin-bottom: 0.4rem;
+}
+.ca-auth-form-subtitle {
+    font-size: 0.9rem;
+    color: var(--ca-text-muted);
+}
+
+/* Auth Form Elements */
+.ca-auth-field {
+    margin-bottom: 1.2rem;
+}
+.ca-auth-field label {
+    display: block;
+    font-size: 0.84rem;
+    font-weight: 500;
+    color: var(--ca-text-secondary);
+    margin-bottom: 0.4rem;
+}
+.ca-auth-field .form-control {
+    background: var(--ca-bg-card);
+    border: 1px solid var(--ca-border);
+    color: var(--ca-text-primary);
+    border-radius: var(--ca-radius);
+    padding: 0.7rem 1rem;
+    width: 100%;
+    font-size: 0.9rem;
+    transition: all var(--ca-transition);
+}
+.ca-auth-field .form-control::placeholder { color: var(--ca-text-muted); }
+.ca-auth-field .form-control:focus {
+    border-color: var(--ca-accent);
+    box-shadow: 0 0 0 3px var(--ca-accent-glow);
+    background: var(--ca-bg-card);
+    color: var(--ca-text-primary);
+}
+
+/* Input with icon */
+.ca-input-group {
+    position: relative;
+}
+.ca-input-group .form-control { padding-left: 2.5rem; }
+.ca-input-group .ca-input-icon {
+    position: absolute;
+    left: 0.85rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--ca-text-muted);
+    font-size: 0.9rem;
+    pointer-events: none;
+    z-index: 2;
+}
+.ca-input-group .ca-pwd-toggle {
+    position: absolute;
+    right: 0.85rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--ca-text-muted);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    font-size: 0.9rem;
+    z-index: 2;
+    transition: color var(--ca-transition);
+}
+.ca-input-group .ca-pwd-toggle:hover { color: var(--ca-accent); }
+
+.ca-auth-submit {
+    width: 100%;
+    padding: 0.75rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    border-radius: var(--ca-radius);
+    background: linear-gradient(135deg, var(--ca-accent), #4F46E5);
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    transition: all var(--ca-transition);
+    margin-top: 0.5rem;
+    position: relative;
+    overflow: hidden;
+}
+.ca-auth-submit::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.1), transparent);
+    opacity: 0;
+    transition: opacity var(--ca-transition);
+}
+.ca-auth-submit:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(59,130,246,0.4);
+}
+.ca-auth-submit:hover::before { opacity: 1; }
+.ca-auth-submit:active { transform: translateY(0); }
+
+.ca-auth-divider {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 1.5rem 0;
+    color: var(--ca-text-muted);
+    font-size: 0.8rem;
+}
+.ca-auth-divider::before,
+.ca-auth-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--ca-border);
+}
+
+.ca-auth-footer-text {
+    text-align: center;
+    font-size: 0.875rem;
+    color: var(--ca-text-muted);
+    margin-top: 1.5rem;
+}
+.ca-auth-footer-text a { color: var(--ca-accent); font-weight: 500; }
+.ca-auth-footer-text a:hover { color: var(--ca-accent-hover); }
+
+/* Forgot password link */
+.ca-forgot-link {
+    display: block;
+    text-align: right;
+    font-size: 0.8rem;
+    color: var(--ca-text-muted);
+    margin-top: -0.4rem;
+    margin-bottom: 1rem;
+    transition: color var(--ca-transition);
+}
+.ca-forgot-link:hover { color: var(--ca-accent); }
+
+/* Remember me checkbox */
+.ca-auth-remember {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+.ca-auth-remember input[type="checkbox"] {
+    width: 16px; height: 16px;
+    accent-color: var(--ca-accent);
+    cursor: pointer;
+}
+.ca-auth-remember label {
+    font-size: 0.85rem;
+    color: var(--ca-text-secondary);
+    cursor: pointer;
+    margin: 0;
+}
+
+/* Password strength */
+.ca-pwd-strength {
+    margin-top: 0.5rem;
+    display: flex;
+    gap: 4px;
+    align-items: center;
+}
+.ca-pwd-strength-bar {
+    flex: 1;
+    height: 3px;
+    border-radius: 2px;
+    background: var(--ca-bg-base);
+    transition: background 0.3s;
+}
+.ca-pwd-strength-bar.filled-weak   { background: var(--ca-danger); }
+.ca-pwd-strength-bar.filled-fair   { background: var(--ca-warning); }
+.ca-pwd-strength-bar.filled-strong { background: var(--ca-success); }
+.ca-pwd-strength-label {
+    font-size: 0.72rem;
+    color: var(--ca-text-muted);
+    margin-left: 0.4rem;
+    min-width: 40px;
+    text-align: right;
+}
+
+/* OTP / Verify Email */
+.ca-otp-wrap {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+    margin: 1.5rem 0;
+}
+.ca-otp-input {
+    width: 52px;
+    height: 60px;
+    text-align: center;
+    font-size: 1.4rem;
+    font-weight: 700;
+    background: var(--ca-bg-card);
+    border: 1px solid var(--ca-border);
+    border-radius: var(--ca-radius);
+    color: var(--ca-text-primary);
+    transition: all var(--ca-transition);
+}
+.ca-otp-input:focus {
+    border-color: var(--ca-accent);
+    box-shadow: 0 0 0 3px var(--ca-accent-glow);
+    outline: none;
+}
+
+/* Success / icon circles */
+.ca-auth-icon-circle {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    margin: 0 auto 1.5rem;
+}
+.ca-auth-icon-circle.success {
+    background: var(--ca-success-light);
+    color: var(--ca-success);
+    border: 2px solid rgba(16,185,129,0.3);
+}
+.ca-auth-icon-circle.info {
+    background: var(--ca-accent-light);
+    color: var(--ca-accent);
+    border: 2px solid var(--ca-border-accent);
+}
+
+/* ─── Responsive ─────────────────────────────────────────── */
+@media (max-width: 767.98px) {
+    .ca-auth-left { display: none; }
+    .ca-auth-right {
+        padding: 2rem 1.25rem;
+    }
+    .ca-auth-form-wrap { max-width: 100%; }
+}
+
+@media (max-width: 991.98px) {
+    .ca-auth-left {
+        width: 38%;
+        padding: 2.5rem;
+    }
+    .ca-auth-headline { font-size: 1.6rem; }
+}

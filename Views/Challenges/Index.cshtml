@@ -1,0 +1,418 @@
+@model ChallengeListViewModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Challenges";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/challenges.css" asp-append-version="true" />
+}
+
+<div class="stagger-children">
+
+    @* ─── Page Header ─────────────────────────────────────── *@
+    <div class="ch-page-header">
+        <div>
+            <h2 class="ch-page-title">
+                <i class="fas fa-flag me-2" style="color:var(--ca-accent);" aria-hidden="true"></i>
+                Challenges
+            </h2>
+            <p class="ch-page-subtitle">
+                <strong style="color:var(--ca-text-primary);">@Model.SolvedCount</strong>
+                of <strong style="color:var(--ca-text-primary);">@Model.TotalCount</strong> solved &nbsp;·&nbsp;
+                <strong style="color:var(--ca-accent);">@Model.EarnedPoints.ToString("N0")</strong>
+                / @Model.TotalPoints.ToString("N0") pts
+            </p>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            @* Overall progress *@
+            <div style="display:flex;align-items:center;gap:0.75rem;background:var(--ca-bg-card);border:1px solid var(--ca-border);border-radius:var(--ca-radius);padding:0.55rem 1rem;">
+                <div style="width:100px;">
+                    <div class="ca-progress">
+                        <div class="ca-progress-bar" data-width="@(Model.TotalCount > 0 ? (int)((double)Model.SolvedCount / Model.TotalCount * 100) : 0)"></div>
+                    </div>
+                </div>
+                <span style="font-size:0.8rem;color:var(--ca-text-muted);">
+                    @(Model.TotalCount > 0 ? (int)((double)Model.SolvedCount / Model.TotalCount * 100) : 0)% done
+                </span>
+            </div>
+        </div>
+    </div>
+
+    @* ─── Flash Messages ──────────────────────────────────── *@
+    @if (TempData["SubmitResult"] != null)
+    {
+        bool correct = TempData["SubmitResult"]?.ToString() == "correct";
+        <div class="alert @(correct ? "alert-success" : "alert-danger") ca-auto-dismiss d-flex align-items-center gap-2 mb-3" role="alert">
+            <i class="fas @(correct ? "fa-circle-check" : "fa-circle-xmark") fa-fw" aria-hidden="true"></i>
+            <span>@TempData["SubmitMsg"]</span>
+        </div>
+    }
+
+    @* ─── Category Tabs ───────────────────────────────────── *@
+    <div class="ch-cat-tabs" id="cat-tabs" role="tablist" aria-label="Filter by category">
+        <button class="ch-cat-tab @(string.IsNullOrEmpty(Model.ActiveCategory) ? "active" : "")"
+                data-cat="All" role="tab"
+                aria-selected="@(string.IsNullOrEmpty(Model.ActiveCategory) ? "true" : "false")">
+            <i class="fas fa-th-large" aria-hidden="true"></i>
+            All
+            <span class="ch-cat-count">@Model.Challenges.Count</span>
+        </button>
+        @foreach (var cat in ChallengeCategories.All)
+        {
+            int count = Model.CategoryCounts.GetValueOrDefault(cat, 0);
+            bool isActive = Model.ActiveCategory == cat;
+            <button class="ch-cat-tab @(isActive ? "active" : "")"
+                    data-cat="@cat" role="tab"
+                    aria-selected="@(isActive ? "true" : "false")">
+                <i class="fas @ChallengeCategories.Icon(cat)" aria-hidden="true"></i>
+                @cat.Split(' ')[0]
+                <span class="ch-cat-count">@count</span>
+            </button>
+        }
+    </div>
+
+    @* ─── Toolbar ─────────────────────────────────────────── *@
+    <div class="ch-toolbar" role="search">
+        @* Search *@
+        <div class="ch-search-wrap">
+            <span class="ch-search-icon"><i class="fas fa-magnifying-glass" aria-hidden="true"></i></span>
+            <input type="search"
+                   id="ch-search"
+                   class="ch-search-input"
+                   placeholder="Search challenges…"
+                   value="@Model.SearchQuery"
+                   aria-label="Search challenges" />
+        </div>
+
+        <div class="ch-toolbar-divider" aria-hidden="true"></div>
+
+        @* Difficulty filter *@
+        <div class="ch-filter-group" role="group" aria-label="Filter by difficulty">
+            <span class="ch-filter-label">Difficulty</span>
+            <button class="ch-pill all @(string.IsNullOrEmpty(Model.ActiveDifficulty) ? "active" : "")"
+                    data-diff="All" aria-pressed="@(string.IsNullOrEmpty(Model.ActiveDifficulty))">All</button>
+            <button class="ch-pill easy @(Model.ActiveDifficulty == "Easy" ? "active" : "")"
+                    data-diff="Easy" aria-pressed="@(Model.ActiveDifficulty == "Easy")">Easy</button>
+            <button class="ch-pill medium @(Model.ActiveDifficulty == "Medium" ? "active" : "")"
+                    data-diff="Medium" aria-pressed="@(Model.ActiveDifficulty == "Medium")">Medium</button>
+            <button class="ch-pill hard @(Model.ActiveDifficulty == "Hard" ? "active" : "")"
+                    data-diff="Hard" aria-pressed="@(Model.ActiveDifficulty == "Hard")">Hard</button>
+        </div>
+
+        <div class="ch-toolbar-divider" aria-hidden="true"></div>
+
+        @* Sort *@
+        <select class="ch-sort-select" id="ch-sort" aria-label="Sort challenges">
+            <option value="points-asc"    selected="@(Model.SortBy == "points-asc")">Points ↑</option>
+            <option value="points-desc"   selected="@(Model.SortBy == "points-desc")">Points ↓</option>
+            <option value="solvers-desc"  selected="@(Model.SortBy == "solvers-desc")">Most Solved</option>
+            <option value="title-asc"     selected="@(Model.SortBy == "title-asc")">A → Z</option>
+        </select>
+
+        @* View toggle *@
+        <div class="ch-view-toggle" role="group" aria-label="View mode">
+            <button class="ch-view-btn active" id="view-grid" title="Grid view" aria-label="Grid view">
+                <i class="fas fa-grid-2" aria-hidden="true"></i>
+            </button>
+            <button class="ch-view-btn" id="view-list" title="List view" aria-label="List view">
+                <i class="fas fa-list" aria-hidden="true"></i>
+            </button>
+        </div>
+    </div>
+
+    @* ─── Count bar ───────────────────────────────────────── *@
+    <div class="ch-count-bar">
+        <p class="ch-count-text" id="ch-count-label" aria-live="polite">
+            Showing <strong id="ch-visible-count">@Model.Challenges.Count</strong> challenges
+        </p>
+        <div class="d-flex align-items-center gap-2">
+            <span class="ca-tag easy"><i class="fas fa-circle me-1" aria-hidden="true"></i>Easy</span>
+            <span class="ca-tag medium"><i class="fas fa-circle me-1" aria-hidden="true"></i>Medium</span>
+            <span class="ca-tag hard"><i class="fas fa-circle me-1" aria-hidden="true"></i>Hard</span>
+        </div>
+    </div>
+
+    @* ─── Challenge Grid ──────────────────────────────────── *@
+    <div class="ch-grid" id="ch-grid" role="list">
+        @foreach (var ch in Model.Challenges)
+        {
+            <a class="ch-card @(ch.IsSolved ? "solved" : "")"
+               href="@Url.Action("Details", "Challenges", new { id = ch.Id })"
+               id="ch-card-@ch.Id"
+               role="listitem"
+               data-title="@ch.Title.ToLower()"
+               data-category="@ch.Category"
+               data-difficulty="@ch.Difficulty"
+               data-points="@ch.Points"
+               data-solvers="@ch.SolverCount"
+               aria-label="@ch.Title, @ch.Difficulty, @ch.Points points@(ch.IsSolved ? ", solved" : "")">
+
+                @* Card top row *@
+                <div class="ch-card-top">
+                    <div class="ch-card-icon @ch.CategoryCssClass" aria-hidden="true">
+                        <i class="fas @ch.CategoryIcon"></i>
+                    </div>
+                    @if (ch.IsSolved)
+                    {
+                        <span class="ch-solved-badge" aria-label="Solved">
+                            <i class="fas fa-circle-check" aria-hidden="true"></i> Solved
+                        </span>
+                    }
+                    else if (ch.HasAttachment)
+                    {
+                        <span style="font-size:0.72rem;color:var(--ca-text-muted);" title="Has attachment">
+                            <i class="fas fa-paperclip" aria-hidden="true"></i>
+                        </span>
+                    }
+                </div>
+
+                @* Title *@
+                <h3 class="ch-card-title">@ch.Title</h3>
+
+                @* Description preview *@
+                @if (!string.IsNullOrEmpty(ch.ShortDescription))
+                {
+                    <p style="font-size:0.8rem;color:var(--ca-text-muted);margin:0;line-height:1.5;
+                              overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;">
+                        @ch.ShortDescription
+                    </p>
+                }
+
+                @* Meta row *@
+                <div class="ch-card-meta">
+                    <span class="ch-diff @ch.DifficultyLower">@ch.Difficulty</span>
+                    <span class="ch-card-category">@ch.Category</span>
+                </div>
+
+                @* Footer *@
+                <div class="ch-card-footer">
+                    <div class="ch-points">
+                        @ch.Points <small>pts</small>
+                    </div>
+                    <div class="ch-solvers-count" aria-label="@ch.SolverCount solvers">
+                        <i class="fas fa-users" aria-hidden="true"></i> @ch.SolverCount
+                    </div>
+                </div>
+            </a>
+        }
+    </div>
+
+    @* ─── Empty state (shown by JS when no matches) ───────── *@
+    <div class="ch-empty d-none" id="ch-empty" role="status" aria-live="polite">
+        <i class="fas fa-flag" aria-hidden="true"></i>
+        <h4>No challenges found</h4>
+        <p>Try adjusting your search or filters.</p>
+        <button class="btn btn-secondary btn-sm mt-2" onclick="resetFilters()">
+            <i class="fas fa-rotate-left me-1" aria-hidden="true"></i> Reset Filters
+        </button>
+    </div>
+
+    @* ─── List view (hidden by default) ──────────────────── *@
+    <div class="d-none" id="ch-list-view">
+        <div class="ca-card p-0" style="overflow:hidden;">
+            <div class="table-responsive">
+                <table class="table mb-0" aria-label="Challenges list">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Challenge</th>
+                            <th>Category</th>
+                            <th>Difficulty</th>
+                            <th class="text-end">Points</th>
+                            <th class="text-end">Solvers</th>
+                            <th class="text-center">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ch-list-body">
+                        @foreach (var ch in Model.Challenges)
+                        {
+                            <tr class="ch-list-row"
+                                data-title="@ch.Title.ToLower()"
+                                data-category="@ch.Category"
+                                data-difficulty="@ch.Difficulty"
+                                data-points="@ch.Points"
+                                data-solvers="@ch.SolverCount"
+                                style="cursor:pointer;"
+                                onclick="window.location.href='@Url.Action("Details", "Challenges", new { id = ch.Id })'">
+                                <td style="color:var(--ca-text-muted);font-size:0.82rem;">@ch.Id</td>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="ch-card-icon @ch.CategoryCssClass" style="width:28px;height:28px;font-size:0.75rem;" aria-hidden="true">
+                                            <i class="fas @ch.CategoryIcon"></i>
+                                        </div>
+                                        <span style="font-weight:500;">@ch.Title</span>
+                                        @if (ch.HasAttachment)
+                                        {
+                                            <i class="fas fa-paperclip" style="color:var(--ca-text-muted);font-size:0.75rem;" title="Has attachment" aria-hidden="true"></i>
+                                        }
+                                    </div>
+                                </td>
+                                <td><span style="font-size:0.82rem;color:var(--ca-text-muted);">@ch.Category</span></td>
+                                <td><span class="ch-diff @ch.DifficultyLower">@ch.Difficulty</span></td>
+                                <td class="text-end">
+                                    <span style="font-family:'Space Grotesk',sans-serif;font-weight:700;color:var(--ca-accent);">@ch.Points</span>
+                                </td>
+                                <td class="text-end" style="color:var(--ca-text-muted);font-size:0.82rem;">@ch.SolverCount</td>
+                                <td class="text-center">
+                                    @if (ch.IsSolved)
+                                    {
+                                        <span class="ch-solved-badge"><i class="fas fa-check" aria-hidden="true"></i> Solved</span>
+                                    }
+                                    else
+                                    {
+                                        <span style="font-size:0.75rem;color:var(--ca-text-muted);">—</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+@section Scripts {
+<script>
+(function () {
+    // ── State ─────────────────────────────────────────────
+    var state = {
+        cat: '@(Model.ActiveCategory ?? "All")',
+        diff: '@(Model.ActiveDifficulty ?? "All")',
+        q: '',
+        sort: '@Model.SortBy',
+        view: 'grid'   // 'grid' | 'list'
+    };
+
+    // ── Elements ──────────────────────────────────────────
+    var grid     = document.getElementById('ch-grid');
+    var listView = document.getElementById('ch-list-view');
+    var empty    = document.getElementById('ch-empty');
+    var countLbl = document.getElementById('ch-visible-count');
+    var searchEl = document.getElementById('ch-search');
+
+    // ── Category tabs ─────────────────────────────────────
+    document.querySelectorAll('#cat-tabs .ch-cat-tab').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            state.cat = btn.dataset.cat;
+            document.querySelectorAll('#cat-tabs .ch-cat-tab').forEach(b => {
+                b.classList.remove('active');
+                b.setAttribute('aria-selected', 'false');
+            });
+            btn.classList.add('active');
+            btn.setAttribute('aria-selected', 'true');
+            applyFilters();
+        });
+    });
+
+    // ── Difficulty pills ──────────────────────────────────
+    document.querySelectorAll('.ch-pill').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            state.diff = btn.dataset.diff;
+            document.querySelectorAll('.ch-pill').forEach(b => {
+                b.classList.remove('active');
+                b.setAttribute('aria-pressed', 'false');
+            });
+            btn.classList.add('active');
+            btn.setAttribute('aria-pressed', 'true');
+            applyFilters();
+        });
+    });
+
+    // ── Search ────────────────────────────────────────────
+    searchEl.addEventListener('input', function () {
+        state.q = searchEl.value.toLowerCase().trim();
+        applyFilters();
+    });
+
+    // ── Sort ──────────────────────────────────────────────
+    document.getElementById('ch-sort').addEventListener('change', function () {
+        state.sort = this.value;
+        sortCards();
+    });
+
+    // ── View toggle ───────────────────────────────────────
+    document.getElementById('view-grid').addEventListener('click', function () {
+        state.view = 'grid';
+        grid.classList.remove('d-none');
+        listView.classList.add('d-none');
+        this.classList.add('active');
+        document.getElementById('view-list').classList.remove('active');
+    });
+    document.getElementById('view-list').addEventListener('click', function () {
+        state.view = 'list';
+        listView.classList.remove('d-none');
+        grid.classList.add('d-none');
+        this.classList.add('active');
+        document.getElementById('view-grid').classList.remove('active');
+        applyFilters(); // also filter list rows
+    });
+
+    // ── Core filter function ──────────────────────────────
+    function matchesFilters(el) {
+        var cat   = el.dataset.category  || '';
+        var diff  = el.dataset.difficulty || '';
+        var title = el.dataset.title || '';
+        if (state.cat !== 'All'  && cat  !== state.cat)  return false;
+        if (state.diff !== 'All' && diff !== state.diff) return false;
+        if (state.q && !title.includes(state.q)) return false;
+        return true;
+    }
+
+    function applyFilters() {
+        var visible = 0;
+
+        // Grid cards
+        grid.querySelectorAll('.ch-card').forEach(function (card) {
+            var show = matchesFilters(card);
+            card.style.display = show ? '' : 'none';
+            if (show) visible++;
+        });
+
+        // List rows
+        document.querySelectorAll('.ch-list-row').forEach(function (row) {
+            row.style.display = matchesFilters(row) ? '' : 'none';
+        });
+
+        // Empty state
+        empty.classList.toggle('d-none', visible > 0);
+        if (countLbl) countLbl.textContent = visible;
+    }
+
+    // ── Sort (grid only — reorder DOM nodes) ──────────────
+    function sortCards() {
+        var cards = Array.from(grid.querySelectorAll('.ch-card'));
+        cards.sort(function (a, b) {
+            switch (state.sort) {
+                case 'points-desc':   return parseInt(b.dataset.points)  - parseInt(a.dataset.points);
+                case 'points-asc':    return parseInt(a.dataset.points)  - parseInt(b.dataset.points);
+                case 'solvers-desc':  return parseInt(b.dataset.solvers) - parseInt(a.dataset.solvers);
+                case 'title-asc':     return a.dataset.title.localeCompare(b.dataset.title);
+                default:              return parseInt(a.dataset.points)  - parseInt(b.dataset.points);
+            }
+        });
+        cards.forEach(function (c) { grid.appendChild(c); });
+    }
+
+    // ── Reset helper (used by empty state button) ─────────
+    window.resetFilters = function () {
+        state.cat = 'All'; state.diff = 'All'; state.q = '';
+        searchEl.value = '';
+        document.querySelectorAll('#cat-tabs .ch-cat-tab').forEach(b => {
+            b.classList.toggle('active', b.dataset.cat === 'All');
+            b.setAttribute('aria-selected', b.dataset.cat === 'All' ? 'true' : 'false');
+        });
+        document.querySelectorAll('.ch-pill').forEach(b => {
+            b.classList.toggle('active', b.dataset.diff === 'All');
+        });
+        applyFilters();
+    };
+
+    // ── Init ──────────────────────────────────────────────
+    applyFilters();
+    sortCards();
+}());
+</script>
+}

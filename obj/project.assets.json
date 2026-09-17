@@ -14,11 +14,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\keval\\cyber-arena\\cyber-arena.csproj",
+      "projectUniqueName": "C:\\Users\\keval\\Desktop\\CYBER ARENA\\cyber-arena\\cyber-arena.csproj",
       "projectName": "cyber-arena",
-      "projectPath": "C:\\Users\\keval\\cyber-arena\\cyber-arena.csproj",
+      "projectPath": "C:\\Users\\keval\\Desktop\\CYBER ARENA\\cyber-arena\\cyber-arena.csproj",
       "packagesPath": "C:\\Users\\keval\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\keval\\cyber-arena\\obj\\",
+      "outputPath": "C:\\Users\\keval\\Desktop\\CYBER ARENA\\cyber-arena\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

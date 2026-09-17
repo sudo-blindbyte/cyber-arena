@@ -1,0 +1,98 @@
+@* CyberArena — Topbar Partial *@
+<header class="ca-topbar" role="banner">
+
+    <div class="ca-topbar-left">
+        @* Mobile sidebar toggle *@
+        <button class="ca-sidebar-toggle"
+                id="ca-sidebar-toggle"
+                type="button"
+                aria-controls="ca-sidebar"
+                aria-expanded="false"
+                aria-label="Toggle navigation">
+            <i class="fas fa-bars" aria-hidden="true"></i>
+        </button>
+
+        @* Page title / breadcrumb *@
+        <div>
+            <h1 class="ca-page-title">@(ViewData["Title"] ?? "CyberArena")</h1>
+            @if (ViewData["Breadcrumb"] != null)
+            {
+                <nav class="ca-breadcrumb" aria-label="breadcrumb">
+                    <a asp-controller="Dashboard" asp-action="Index">Home</a>
+                    <span class="ca-breadcrumb-sep" aria-hidden="true">/</span>
+                    <span class="ca-breadcrumb-current">@ViewData["Breadcrumb"]</span>
+                </nav>
+            }
+        </div>
+    </div>
+
+    <div class="ca-topbar-right" role="toolbar" aria-label="User actions">
+
+        @* Search shortcut *@
+        <a class="ca-icon-btn"
+           href="#"
+           id="topbar-search"
+           data-bs-toggle="tooltip"
+           data-bs-placement="bottom"
+           title="Search (Ctrl+K)"
+           aria-label="Search">
+            <i class="fas fa-magnifying-glass" aria-hidden="true"></i>
+        </a>
+
+        @* Notifications *@
+        <a class="ca-icon-btn"
+           href="#"
+           id="topbar-notifications"
+           data-bs-toggle="tooltip"
+           data-bs-placement="bottom"
+           title="Notifications"
+           aria-label="Notifications (3 unread)">
+            <i class="fas fa-bell" aria-hidden="true"></i>
+            <span class="ca-notif-dot" aria-label="3 unread notifications"></span>
+        </a>
+
+        @* Profile avatar dropdown *@
+        <div class="dropdown">
+            <button class="ca-icon-btn p-0"
+                    id="topbar-user-dropdown"
+                    type="button"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                    aria-label="User menu"
+                    style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#3B82F6,#6366F1);color:#fff;font-weight:700;font-size:0.82rem;border:2px solid rgba(59,130,246,0.4);">
+                AC
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end shadow"
+                aria-labelledby="topbar-user-dropdown"
+                style="background:var(--ca-bg-card);border-color:var(--ca-border);min-width:190px;">
+                <li>
+                    <div class="px-3 py-2 border-bottom" style="border-color:var(--ca-border)!important;">
+                        <div style="font-size:0.875rem;font-weight:600;color:var(--ca-text-primary);">h4x0r_pro</div>
+                        <div style="font-size:0.75rem;color:var(--ca-text-muted);">alex@cyberarena.io</div>
+                    </div>
+                </li>
+                <li>
+                    <a class="dropdown-item" asp-controller="Account" asp-action="Profile"
+                       style="color:var(--ca-text-secondary);font-size:0.875rem;">
+                        <i class="fas fa-circle-user me-2" style="color:var(--ca-accent);"></i>Profile
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item" href="#"
+                       style="color:var(--ca-text-secondary);font-size:0.875rem;">
+                        <i class="fas fa-gear me-2" style="color:var(--ca-text-muted);"></i>Settings
+                    </a>
+                </li>
+                <li><hr class="dropdown-divider" style="border-color:var(--ca-border);"></li>
+                <li>
+                    <a class="dropdown-item text-danger" href="#"
+                       onclick="document.getElementById('logout-form').submit(); return false;"
+                       style="font-size:0.875rem;">
+                        <i class="fas fa-right-from-bracket me-2"></i>Sign Out
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+    </div>
+</header>

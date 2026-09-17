@@ -1,0 +1,383 @@
+@model ChallengeFormViewModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = Model.PageTitle;
+    ViewData["Breadcrumb"] = "Admin · " + Model.PageTitle;
+
+    // Determine form action based on create vs edit
+    string formAction = Model.IsEdit
+        ? Url.Action("ChallengeEdit",   "Admin", new { id = Model.Id })!
+        : Url.Action("ChallengeCreate", "Admin")!;
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/challenges.css" asp-append-version="true" />
+}
+
+<div class="stagger-children">
+
+    @* ─── Page Header ─────────────────────────────────────── *@
+    <div class="adm-header">
+        <div>
+            <h2 class="adm-title">
+                <i class="fas @(Model.IsEdit ? "fa-pen" : "fa-plus") me-2" style="color:var(--ca-accent);" aria-hidden="true"></i>
+                @Model.PageTitle
+            </h2>
+            <p class="adm-subtitle">
+                @(Model.IsEdit ? $"Editing challenge #{Model.Id}" : "Fill in the details to create a new CTF challenge")
+            </p>
+        </div>
+        <a asp-controller="Admin" asp-action="Challenges" class="btn btn-secondary">
+            <i class="fas fa-arrow-left me-1" aria-hidden="true"></i>Back to Challenges
+        </a>
+    </div>
+
+    @* ─── Form ────────────────────────────────────────────── *@
+    <form action="@formAction" method="post"
+          enctype="multipart/form-data"
+          data-loading="true"
+          novalidate>
+        @Html.AntiForgeryToken()
+        @if (Model.IsEdit)
+        {
+            <input type="hidden" asp-for="Id" />
+        }
+
+        <div class="row g-4">
+
+            @* ── Left Column ── *@
+            <div class="col-lg-8">
+
+                @* Basic Info *@
+                <div class="ch-form-card mb-4">
+                    <div class="ch-form-section">
+                        <div class="ch-form-section-title">
+                            <i class="fas fa-circle-info" aria-hidden="true"></i> Challenge Information
+                        </div>
+
+                        @* Title *@
+                        <div class="mb-3">
+                            <label asp-for="Title" class="form-label">
+                                Title <span style="color:var(--ca-danger);">*</span>
+                            </label>
+                            <input asp-for="Title"
+                                   id="form-title"
+                                   class="form-control"
+                                   placeholder="e.g. SQL Injection Basics"
+                                   maxlength="200"
+                                   autocomplete="off" />
+                            <span asp-validation-for="Title" class="field-validation-error d-block mt-1"></span>
+                        </div>
+
+                        @* Description *@
+                        <div class="mb-0">
+                            <label asp-for="Description" class="form-label">
+                                Description <span style="color:var(--ca-danger);">*</span>
+                            </label>
+                            <textarea asp-for="Description"
+                                      id="form-desc"
+                                      class="form-control"
+                                      rows="6"
+                                      placeholder="Describe the challenge scenario. Explain what the participant needs to do. You may include connection details, context, and any prerequisite knowledge."></textarea>
+                            <span asp-validation-for="Description" class="field-validation-error d-block mt-1"></span>
+                        </div>
+                    </div>
+
+                    @* Category / Difficulty / Points row *@
+                    <div class="ch-form-section">
+                        <div class="ch-form-section-title">
+                            <i class="fas fa-sliders" aria-hidden="true"></i> Classification
+                        </div>
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label asp-for="Category" class="form-label">
+                                    Category <span style="color:var(--ca-danger);">*</span>
+                                </label>
+                                <select asp-for="Category"
+                                        id="form-category"
+                                        class="form-select ch-form-select">
+                                    @foreach (var cat in ChallengeCategories.All)
+                                    {
+                                        <option value="@cat">@cat</option>
+                                    }
+                                </select>
+                                <span asp-validation-for="Category" class="field-validation-error d-block mt-1"></span>
+                            </div>
+                            <div class="col-md-4">
+                                <label asp-for="Difficulty" class="form-label">
+                                    Difficulty <span style="color:var(--ca-danger);">*</span>
+                                </label>
+                                <select asp-for="Difficulty"
+                                        id="form-difficulty"
+                                        class="form-select ch-form-select">
+                                    @foreach (var d in ChallengeDifficulty.All)
+                                    {
+                                        <option value="@d">@d</option>
+                                    }
+                                </select>
+                                <span asp-validation-for="Difficulty" class="field-validation-error d-block mt-1"></span>
+                            </div>
+                            <div class="col-md-4">
+                                <label asp-for="Points" class="form-label">
+                                    Points <span style="color:var(--ca-danger);">*</span>
+                                </label>
+                                <input asp-for="Points"
+                                       id="form-points"
+                                       class="form-control"
+                                       type="number"
+                                       min="1" max="10000"
+                                       step="25"
+                                       placeholder="e.g. 250" />
+                                <span asp-validation-for="Points" class="field-validation-error d-block mt-1"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    @* Status *@
+                    <div class="ch-form-section">
+                        <div class="ch-form-section-title">
+                            <i class="fas fa-toggle-on" aria-hidden="true"></i> Visibility
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="Status" class="form-label">Status</label>
+                            <select asp-for="Status"
+                                    id="form-status"
+                                    class="form-select ch-form-select">
+                                @foreach (var s in ChallengeStatus.All)
+                                {
+                                    <option value="@s">@s</option>
+                                }
+                            </select>
+                            <small class="text-muted mt-1 d-block">
+                                <strong>Active</strong> = visible to participants &nbsp;·&nbsp;
+                                <strong>Draft</strong> = hidden &nbsp;·&nbsp;
+                                <strong>Archived</strong> = read-only history
+                            </small>
+                        </div>
+                    </div>
+                </div>
+
+                @* Hint *@
+                <div class="ch-form-card mb-4">
+                    <div class="ch-form-section">
+                        <div class="ch-form-section-title">
+                            <i class="fas fa-lightbulb" aria-hidden="true"></i> Hint
+                            <span style="font-weight:400;text-transform:none;letter-spacing:normal;color:var(--ca-text-muted);font-size:0.78rem;">(optional)</span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Hint" class="form-label">Hint Text</label>
+                            <textarea asp-for="Hint"
+                                      id="form-hint"
+                                      class="form-control"
+                                      rows="3"
+                                      placeholder="Give participants a nudge in the right direction…"
+                                      maxlength="1000"></textarea>
+                            <span asp-validation-for="Hint" class="field-validation-error d-block mt-1"></span>
+                        </div>
+
+                        <div style="max-width:180px;">
+                            <label asp-for="HintPenalty" class="form-label">Point Penalty</label>
+                            <div class="input-group">
+                                <span class="input-group-text" style="background:var(--ca-bg-base);border-color:var(--ca-border);color:var(--ca-text-muted);">−</span>
+                                <input asp-for="HintPenalty"
+                                       id="form-hint-penalty"
+                                       class="form-control"
+                                       type="number"
+                                       min="0" max="10000"
+                                       placeholder="0" />
+                            </div>
+                            <small class="text-muted mt-1 d-block">Points deducted when a hint is revealed</small>
+                        </div>
+                    </div>
+                </div>
+
+                @* Attachment *@
+                <div class="ch-form-card">
+                    <div class="ch-form-section">
+                        <div class="ch-form-section-title">
+                            <i class="fas fa-paperclip" aria-hidden="true"></i> Attachment
+                            <span style="font-weight:400;text-transform:none;letter-spacing:normal;color:var(--ca-text-muted);font-size:0.78rem;">(optional)</span>
+                        </div>
+
+                        @if (Model.HasExistingAttachment)
+                        {
+                            <div class="d-flex align-items-center gap-2 mb-3 p-3"
+                                 style="background:var(--ca-bg-base);border-radius:var(--ca-radius);border:1px solid var(--ca-border);">
+                                <i class="fas fa-file-zipper" style="color:var(--ca-accent);" aria-hidden="true"></i>
+                                <span style="font-size:0.875rem;color:var(--ca-text-secondary);flex:1;">@Model.ExistingAttachmentName</span>
+                                <span class="ca-tag easy">Current</span>
+                            </div>
+                            <p style="font-size:0.8rem;color:var(--ca-text-muted);margin-bottom:0.75rem;">
+                                Upload a new file below to replace the existing attachment.
+                            </p>
+                        }
+
+                        <div class="ch-upload-zone" id="upload-zone">
+                            <input type="file"
+                                   asp-for="AttachmentFile"
+                                   id="form-attachment"
+                                   accept=".zip,.tar,.gz,.7z,.pdf,.txt,.py,.c,.cpp,.js,.bin,.exe"
+                                   aria-label="Challenge attachment file" />
+                            <i class="fas fa-cloud-arrow-up ch-upload-icon" aria-hidden="true"></i>
+                            <p class="ch-upload-label" id="upload-label">
+                                <strong style="color:var(--ca-accent);">Click to upload</strong> or drag and drop
+                            </p>
+                            <p class="ch-upload-hint">ZIP, TAR, PDF, Python, C/C++, binary — max 50MB</p>
+                        </div>
+                        <span asp-validation-for="AttachmentFile" class="field-validation-error d-block mt-1"></span>
+                    </div>
+                </div>
+
+            </div>
+
+            @* ── Right Column ── *@
+            <div class="col-lg-4">
+
+                @* Flag *@
+                <div class="ch-form-card mb-4">
+                    <div class="ch-form-section">
+                        <div class="ch-form-section-title">
+                            <i class="fas fa-flag" aria-hidden="true"></i> Flag
+                        </div>
+
+                        <div class="ch-form-flag">
+                            <label asp-for="Flag" class="form-label">
+                                Flag Value <span style="color:var(--ca-danger);">*</span>
+                            </label>
+                            <div class="ch-flag-input-wrap">
+                                <i class="fas fa-flag ch-flag-icon" aria-hidden="true"></i>
+                                <input asp-for="Flag"
+                                       id="form-flag"
+                                       class="ch-flag-input form-control"
+                                       type="password"
+                                       placeholder="CTF{your_flag_here}"
+                                       autocomplete="off"
+                                       spellcheck="false" />
+                                <button type="button" class="ca-pwd-toggle"
+                                        data-target="form-flag"
+                                        aria-label="Show/hide flag"
+                                        style="right:0.5rem;">
+                                    <i class="fas fa-eye" aria-hidden="true"></i>
+                                </button>
+                            </div>
+                            <span asp-validation-for="Flag" class="field-validation-error d-block mt-1"></span>
+                            <small class="text-muted mt-2 d-block">
+                                <i class="fas fa-lock me-1" aria-hidden="true"></i>
+                                Flag is stored securely. Never exposed to participants.
+                            </small>
+                        </div>
+                    </div>
+                </div>
+
+                @* Preview Card *@
+                <div class="ch-form-card mb-4">
+                    <div class="ch-form-section">
+                        <div class="ch-form-section-title">
+                            <i class="fas fa-eye" aria-hidden="true"></i> Live Preview
+                        </div>
+                        <div class="ch-card" style="cursor:default;" id="preview-card" aria-label="Challenge card preview">
+                            <div class="ch-card-top">
+                                <div class="ch-card-icon ch-cat-web" id="preview-icon" aria-hidden="true">
+                                    <i class="fas fa-globe"></i>
+                                </div>
+                            </div>
+                            <h3 class="ch-card-title" id="preview-title" style="font-size:0.9rem;">
+                                Challenge Title Preview
+                            </h3>
+                            <div class="ch-card-meta" id="preview-meta">
+                                <span class="ch-diff medium" id="preview-diff">Medium</span>
+                                <span class="ch-card-category" id="preview-cat">Web Security</span>
+                            </div>
+                            <div class="ch-card-footer">
+                                <div class="ch-points" id="preview-pts">
+                                    100 <small>pts</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                @* Submit *@
+                <div class="ch-form-card">
+                    <div class="ch-form-section">
+                        <button type="submit" id="btn-form-submit" class="btn btn-primary w-100 mb-2">
+                            <i class="fas @(Model.IsEdit ? "fa-floppy-disk" : "fa-plus") me-2" aria-hidden="true"></i>
+                            @Model.SubmitLabel
+                        </button>
+                        <a asp-controller="Admin" asp-action="Challenges" class="btn btn-secondary w-100">
+                            Cancel
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </form>
+
+</div>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+    <script>
+    (function () {
+        // ── Category icon map ────────────────────────────────
+        var catIcons = {
+            'Web Security':          { icon: 'fa-globe',           css: 'ch-cat-web'      },
+            'Cryptography':          { icon: 'fa-key',             css: 'ch-cat-crypto'   },
+            'Reverse Engineering':   { icon: 'fa-code',            css: 'ch-cat-rev'      },
+            'Digital Forensics':     { icon: 'fa-magnifying-glass',css: 'ch-cat-forensics'},
+            'Networking':            { icon: 'fa-network-wired',   css: 'ch-cat-network'  },
+            'Steganography':         { icon: 'fa-image',           css: 'ch-cat-stego'    },
+            'OSINT':                 { icon: 'fa-satellite-dish',  css: 'ch-cat-osint'    },
+            'Binary Exploitation':   { icon: 'fa-terminal',        css: 'ch-cat-pwn'      },
+        };
+
+        // ── Live preview ─────────────────────────────────────
+        function updatePreview() {
+            var title  = document.getElementById('form-title').value.trim() || 'Challenge Title Preview';
+            var cat    = document.getElementById('form-category').value;
+            var diff   = document.getElementById('form-difficulty').value;
+            var pts    = document.getElementById('form-points').value || '100';
+
+            document.getElementById('preview-title').textContent = title;
+            document.getElementById('preview-diff').textContent  = diff;
+            document.getElementById('preview-diff').className    = 'ch-diff ' + diff.toLowerCase();
+            document.getElementById('preview-cat').textContent   = cat;
+            document.getElementById('preview-pts').innerHTML     = pts + ' <small>pts</small>';
+
+            var iconInfo = catIcons[cat] || catIcons['Web Security'];
+            var iconEl = document.getElementById('preview-icon');
+            iconEl.className = 'ch-card-icon ' + iconInfo.css;
+            iconEl.innerHTML = '<i class="fas ' + iconInfo.icon + '"></i>';
+        }
+
+        ['form-title', 'form-category', 'form-difficulty', 'form-points'].forEach(function (id) {
+            var el = document.getElementById(id);
+            if (el) el.addEventListener('input', updatePreview);
+        });
+        updatePreview();
+
+        // ── File upload label ────────────────────────────────
+        var fileInput = document.getElementById('form-attachment');
+        if (fileInput) {
+            fileInput.addEventListener('change', function () {
+                var label = document.getElementById('upload-label');
+                if (this.files && this.files.length > 0) {
+                    label.innerHTML = '<strong style="color:var(--ca-success);">' + this.files[0].name + '</strong>';
+                } else {
+                    label.innerHTML = '<strong style="color:var(--ca-accent);">Click to upload</strong> or drag and drop';
+                }
+            });
+        }
+
+        // ── Drag-over styling ────────────────────────────────
+        var zone = document.getElementById('upload-zone');
+        if (zone) {
+            zone.addEventListener('dragover',  function (e) { e.preventDefault(); zone.classList.add('drag-over'); });
+            zone.addEventListener('dragleave', function ()  { zone.classList.remove('drag-over'); });
+            zone.addEventListener('drop',      function ()  { zone.classList.remove('drag-over'); });
+        }
+    }());
+    </script>
+}
