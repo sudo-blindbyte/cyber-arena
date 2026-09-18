@@ -1,6 +1,6 @@
 @model ReportViewModel
 @{
-    Layout = "_AdminLayout";
+    Layout = "_Layout";
     ViewData["Title"] = "Reports";
     var subLabels  = System.Text.Json.JsonSerializer.Serialize((string[])ViewBag.SubLabels);
     var subData    = System.Text.Json.JsonSerializer.Serialize((int[])ViewBag.SubData);

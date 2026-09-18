@@ -1,6 +1,6 @@
 @model AdminDashboardViewModel
 @{
-    Layout = "_AdminLayout";
+    Layout = "_Layout";
     ViewData["Title"] = "Admin Dashboard";
     var subLabels  = System.Text.Json.JsonSerializer.Serialize((string[])ViewBag.SubLabels);
     var subCorrect = System.Text.Json.JsonSerializer.Serialize((int[])ViewBag.SubCorrect);

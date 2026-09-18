@@ -1,7 +1,7 @@
 @* CyberArena — Sidebar Partial *@
 @{
     var currentController = ViewContext.RouteData.Values["controller"]?.ToString()?.ToLower() ?? "";
-    var currentAction = ViewContext.RouteData.Values["action"]?.ToString()?.ToLower() ?? "";
+    var currentAction     = ViewContext.RouteData.Values["action"]?.ToString()?.ToLower() ?? "";
 
     string NavClass(string controller, string? action = null)
     {
@@ -9,6 +9,8 @@
             && (action == null || currentAction == action.ToLower());
         return match ? "ca-nav-link active" : "ca-nav-link";
     }
+
+    bool isAdmin = currentController == "admin";
 }
 
 <aside class="ca-sidebar" id="ca-sidebar" aria-label="Main navigation">
@@ -20,7 +22,7 @@
         </div>
         <div class="ca-brand-text">
             <span class="ca-brand-name">CyberArena</span>
-            <span class="ca-brand-tagline">CTF Platform</span>
+            <span class="ca-brand-tagline">@(isAdmin ? "Admin Panel" : "CTF Platform")</span>
         </div>
     </a>
 
@@ -28,104 +30,217 @@
     <nav class="ca-sidebar-nav" aria-label="Primary navigation">
         <ul class="list-unstyled mb-0">
 
-            <li class="ca-nav-section-label">Main</li>
+            @if (isAdmin)
+            {
+                @* ══ ADMIN NAVIGATION ══════════════════════════ *@
+                <li class="ca-nav-section-label">Overview</li>
 
-            <li class="ca-nav-item">
-                <a class="@NavClass("dashboard")"
-                   asp-controller="Dashboard" asp-action="Index"
-                   id="nav-dashboard">
-                    <span class="ca-nav-icon" aria-hidden="true"><i class="fas fa-gauge-high"></i></span>
-                    Dashboard
-                </a>
-            </li>
+                <li class="ca-nav-item">
+                    <a class="@NavClass("admin", "index")"
+                       asp-controller="Admin" asp-action="Index"
+                       id="nav-admin-dashboard">
+                        <span class="ca-nav-icon" aria-hidden="true"><i class="fas fa-gauge-high"></i></span>
+                        Dashboard
+                    </a>
+                </li>
 
-            <li class="ca-nav-item">
-                <a class="@NavClass("challenges")"
-                   asp-controller="Challenges" asp-action="Index"
-                   id="nav-challenges">
-                    <span class="ca-nav-icon" aria-hidden="true"><i class="fas fa-flag"></i></span>
-                    Challenges
-                    <span class="ca-nav-badge">24</span>
-                </a>
-            </li>
+                <li class="ca-nav-item">
+                    <a class="@NavClass("admin", "reports")"
+                       asp-controller="Admin" asp-action="Reports"
+                       id="nav-admin-reports">
+                        <span class="ca-nav-icon" aria-hidden="true"><i class="fas fa-chart-bar"></i></span>
+                        Reports
+                    </a>
+                </li>
 
-            <li class="ca-nav-item">
-                <a class="@NavClass("leaderboard")"
-                   asp-controller="Leaderboard" asp-action="Index"
-                   id="nav-leaderboard">
-                    <span class="ca-nav-icon" aria-hidden="true"><i class="fas fa-trophy"></i></span>
-                    Leaderboard
-                </a>
-            </li>
+                <li class="ca-nav-section-label">Content</li>
 
-            <li class="ca-nav-section-label">Social</li>
+                <li class="ca-nav-item">
+                    <a class="@NavClass("admin", "challenges")"
+                       asp-controller="Admin" asp-action="Challenges"
+                       id="nav-admin-challenges">
+                        <span class="ca-nav-icon" aria-hidden="true"><i class="fas fa-flag"></i></span>
+                        Manage Challenges
+                    </a>
+                </li>
 
-            <li class="ca-nav-item">
-                <a class="@NavClass("teams")"
-                   asp-controller="Teams" asp-action="Index"
-                   id="nav-teams">
-                    <span class="ca-nav-icon" aria-hidden="true"><i class="fas fa-users"></i></span>
-                    Teams
-                </a>
-            </li>
+                <li class="ca-nav-item">
+                    <a class="@NavClass("admin", "challengecreate")"
+                       asp-controller="Admin" asp-action="ChallengeCreate"
+                       id="nav-admin-new-challenge">
+                        <span class="ca-nav-icon" aria-hidden="true"><i class="fas fa-plus-circle"></i></span>
+                        New Challenge
+                    </a>
+                </li>
 
-            <li class="ca-nav-item">
-                <a class="@NavClass("competitions")"
-                   asp-controller="Competitions" asp-action="Index"
-                   id="nav-competitions">
-                    <span class="ca-nav-icon" aria-hidden="true"><i class="fas fa-bolt"></i></span>
-                    Competitions
-                </a>
-            </li>
+                <li class="ca-nav-item">
+                    <a class="@NavClass("admin", "announcements")"
+                       asp-controller="Admin" asp-action="Announcements"
+                       id="nav-admin-announcements">
+                        <span class="ca-nav-icon" aria-hidden="true"><i class="fas fa-bullhorn"></i></span>
+                        Announcements
+                    </a>
+                </li>
 
-            <li class="ca-nav-item">
-                <a class="@NavClass("announcements")"
-                   asp-controller="Announcements" asp-action="Index"
-                   id="nav-announcements">
-                    <span class="ca-nav-icon" aria-hidden="true"><i class="fas fa-bullhorn"></i></span>
-                    Announcements
-                </a>
-            </li>
+                <li class="ca-nav-section-label">Participants</li>
 
-            <li class="ca-nav-section-label">Account</li>
+                <li class="ca-nav-item">
+                    <a class="@NavClass("admin", "leaderboard")"
+                       asp-controller="Admin" asp-action="Leaderboard"
+                       id="nav-admin-leaderboard">
+                        <span class="ca-nav-icon" aria-hidden="true"><i class="fas fa-trophy"></i></span>
+                        Leaderboard
+                    </a>
+                </li>
 
-            <li class="ca-nav-item">
-                <a class="@NavClass("account", "profile")"
-                   asp-controller="Account" asp-action="Profile"
-                   id="nav-profile">
-                    <span class="ca-nav-icon" aria-hidden="true"><i class="fas fa-circle-user"></i></span>
-                    My Profile
-                </a>
-            </li>
+                <li class="ca-nav-item">
+                    <a class="@NavClass("admin", "competitions")"
+                       asp-controller="Admin" asp-action="Competitions"
+                       id="nav-admin-competitions">
+                        <span class="ca-nav-icon" aria-hidden="true"><i class="fas fa-bolt"></i></span>
+                        Competitions
+                    </a>
+                </li>
 
-            <li class="ca-nav-item">
-                <a class="ca-nav-link text-danger" href="#"
-                   onclick="document.getElementById('logout-form').submit(); return false;"
-                   id="nav-logout">
-                    <span class="ca-nav-icon" aria-hidden="true"><i class="fas fa-right-from-bracket"></i></span>
-                    Sign Out
-                </a>
-            </li>
+                <li class="ca-nav-section-label">Session</li>
+
+                <li class="ca-nav-item">
+                    <a class="ca-nav-link"
+                       asp-controller="Dashboard" asp-action="Index"
+                       id="nav-back-to-user">
+                        <span class="ca-nav-icon" aria-hidden="true"><i class="fas fa-arrow-left"></i></span>
+                        Back to User View
+                    </a>
+                </li>
+
+                <li class="ca-nav-item">
+                    <a class="ca-nav-link text-danger" href="#"
+                       onclick="document.getElementById('admin-logout-form').submit(); return false;"
+                       id="nav-admin-logout">
+                        <span class="ca-nav-icon" aria-hidden="true"><i class="fas fa-right-from-bracket"></i></span>
+                        Sign Out (Admin)
+                    </a>
+                </li>
+            }
+            else
+            {
+                @* ══ USER NAVIGATION ═══════════════════════════ *@
+                <li class="ca-nav-section-label">Main</li>
+
+                <li class="ca-nav-item">
+                    <a class="@NavClass("dashboard")"
+                       asp-controller="Dashboard" asp-action="Index"
+                       id="nav-dashboard">
+                        <span class="ca-nav-icon" aria-hidden="true"><i class="fas fa-gauge-high"></i></span>
+                        Dashboard
+                    </a>
+                </li>
+
+                <li class="ca-nav-item">
+                    <a class="@NavClass("challenges")"
+                       asp-controller="Challenges" asp-action="Index"
+                       id="nav-challenges">
+                        <span class="ca-nav-icon" aria-hidden="true"><i class="fas fa-flag"></i></span>
+                        Challenges
+                        <span class="ca-nav-badge">24</span>
+                    </a>
+                </li>
+
+                <li class="ca-nav-item">
+                    <a class="@NavClass("leaderboard")"
+                       asp-controller="Leaderboard" asp-action="Index"
+                       id="nav-leaderboard">
+                        <span class="ca-nav-icon" aria-hidden="true"><i class="fas fa-trophy"></i></span>
+                        Leaderboard
+                    </a>
+                </li>
+
+                <li class="ca-nav-section-label">Social</li>
+
+                <li class="ca-nav-item">
+                    <a class="@NavClass("teams")"
+                       asp-controller="Teams" asp-action="Index"
+                       id="nav-teams">
+                        <span class="ca-nav-icon" aria-hidden="true"><i class="fas fa-users"></i></span>
+                        Teams
+                    </a>
+                </li>
+
+                <li class="ca-nav-item">
+                    <a class="@NavClass("competitions")"
+                       asp-controller="Competitions" asp-action="Index"
+                       id="nav-competitions">
+                        <span class="ca-nav-icon" aria-hidden="true"><i class="fas fa-bolt"></i></span>
+                        Competitions
+                    </a>
+                </li>
+
+                <li class="ca-nav-item">
+                    <a class="@NavClass("announcements")"
+                       asp-controller="Announcements" asp-action="Index"
+                       id="nav-announcements">
+                        <span class="ca-nav-icon" aria-hidden="true"><i class="fas fa-bullhorn"></i></span>
+                        Announcements
+                    </a>
+                </li>
+
+                <li class="ca-nav-section-label">Account</li>
+
+                <li class="ca-nav-item">
+                    <a class="@NavClass("account", "profile")"
+                       asp-controller="Account" asp-action="Profile"
+                       id="nav-profile">
+                        <span class="ca-nav-icon" aria-hidden="true"><i class="fas fa-circle-user"></i></span>
+                        My Profile
+                    </a>
+                </li>
+
+                <li class="ca-nav-item">
+                    <a class="ca-nav-link text-danger" href="#"
+                       onclick="document.getElementById('logout-form').submit(); return false;"
+                       id="nav-logout">
+                        <span class="ca-nav-icon" aria-hidden="true"><i class="fas fa-right-from-bracket"></i></span>
+                        Sign Out
+                    </a>
+                </li>
+            }
 
         </ul>
     </nav>
 
-    @* ── User Footer ───────────────────────────────────────── *@
+    @* ── Footer chip ─────────────────────────────────────────── *@
     <div class="ca-sidebar-footer">
-        <a class="ca-user-mini" asp-controller="Account" asp-action="Profile"
-           aria-label="View your profile">
-            <div class="ca-user-avatar-sm" aria-hidden="true">AC</div>
-            <div class="ca-user-info">
-                <div class="ca-user-name">h4x0r_pro</div>
-                <div class="ca-user-role">Participant · #7</div>
+        @if (isAdmin)
+        {
+            <div class="ca-user-mini">
+                <div class="ca-user-avatar-sm" aria-hidden="true"
+                     style="background:linear-gradient(135deg,#EF4444,#DC2626);">A</div>
+                <div class="ca-user-info">
+                    <div class="ca-user-name">Administrator</div>
+                    <div class="ca-user-role" style="color:#EF4444;">Admin Session</div>
+                </div>
             </div>
-        </a>
+        }
+        else
+        {
+            <a class="ca-user-mini" asp-controller="Account" asp-action="Profile"
+               aria-label="View your profile">
+                <div class="ca-user-avatar-sm" aria-hidden="true">AC</div>
+                <div class="ca-user-info">
+                    <div class="ca-user-name">h4x0r_pro</div>
+                    <div class="ca-user-role">Participant · #7</div>
+                </div>
+            </a>
+        }
     </div>
 
 </aside>
 
-@* Hidden logout form *@
+@* Hidden logout forms *@
 <form id="logout-form" asp-controller="Account" asp-action="Logout" method="post" style="display:none">
+    @Html.AntiForgeryToken()
+</form>
+<form id="admin-logout-form" asp-controller="AdminLogin" asp-action="Logout" method="post" style="display:none">
     @Html.AntiForgeryToken()
 </form>
 

@@ -61,16 +61,18 @@ namespace cyber_arena.Controllers
             // var result = await _userManager.CreateAsync(user, model.Password);
             // if (result.Succeeded)
             // {
-            //     var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-            //     // send email...
-            //     return RedirectToAction(nameof(VerifyEmail), new { email = model.Email });
+            //     await _signInManager.SignInAsync(user, isPersistent: false);
+            //     return RedirectToAction("Index", "Dashboard");
             // }
             // foreach (var error in result.Errors)
             //     ModelState.AddModelError(string.Empty, error.Description);
 
-            // Temporary: redirect to verify email UI for demonstration
-            return RedirectToAction(nameof(VerifyEmail), new { email = model.Email });
+            // Demo mode: simulate successful registration → go straight to dashboard
+            TempData["DemoMode"] = "true";
+            TempData["AdminSuccess"] = $"Welcome to CyberArena, {model.Username}! Your account has been created.";
+            return RedirectToAction("Index", "Dashboard");
         }
+
 
         // ─────────────────────────────────────────────────────
         // VERIFY EMAIL

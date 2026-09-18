@@ -10,7 +10,7 @@ namespace cyber_arena.Controllers
     public class CompetitionsController : Controller
     {
         // ─── Mock Data ────────────────────────────────────────
-        private static List<CompetitionListItemViewModel> GetMockCompetitions() =>
+        public static List<CompetitionListItemViewModel> GetMockCompetitions() =>
         [
             new()
             {

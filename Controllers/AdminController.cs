@@ -422,5 +422,57 @@ namespace cyber_arena.Controllers
             TempData["AdminSuccess"] = $"Announcement #{id} has been deleted.";
             return RedirectToAction(nameof(Announcements));
         }
+
+        // ══════════════════════════════════════════════════════
+        //  ADMIN LEADERBOARD  —  /Admin/Leaderboard
+        // ══════════════════════════════════════════════════════
+
+        [HttpGet]
+        [Route("Admin/Leaderboard")]
+        public IActionResult Leaderboard(string? q = null, string? filter = null)
+        {
+            ViewData["Title"]      = "Leaderboard";
+            ViewData["Breadcrumb"] = "Admin · Leaderboard";
+
+            var entries = LeaderboardController.GetMockEntries();
+
+            if (!string.IsNullOrWhiteSpace(q))
+                entries = entries.Where(e =>
+                    e.Username.Contains(q, StringComparison.OrdinalIgnoreCase) ||
+                    e.TeamName.Contains(q, StringComparison.OrdinalIgnoreCase)).ToList();
+
+            var vm = new LeaderboardViewModel
+            {
+                Entries         = entries,
+                SearchQuery     = q,
+                FilterBy        = filter ?? "All",
+                CurrentUserRank = 6,
+                CurrentUsername  = "h4x0r_pro"
+            };
+
+            return View("~/Views/Leaderboard/Index.cshtml", vm);
+        }
+
+        // ══════════════════════════════════════════════════════
+        //  ADMIN COMPETITIONS  —  /Admin/Competitions
+        // ══════════════════════════════════════════════════════
+
+        [HttpGet]
+        [Route("Admin/Competitions")]
+        public IActionResult Competitions(string? status = null)
+        {
+            ViewData["Title"]      = "Competitions";
+            ViewData["Breadcrumb"] = "Admin · Competitions";
+
+            var comps = CompetitionsController.GetMockCompetitions();
+
+            var vm = new CompetitionListViewModel
+            {
+                Competitions = comps,
+                FilterStatus = status ?? "all"
+            };
+
+            return View("~/Views/Competitions/Index.cshtml", vm);
+        }
     }
 }

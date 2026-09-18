@@ -10,7 +10,7 @@ namespace cyber_arena.Controllers
     public class LeaderboardController : Controller
     {
         // ─── Mock Data ────────────────────────────────────────
-        private static List<LeaderboardEntryViewModel> GetMockEntries() =>
+        public static List<LeaderboardEntryViewModel> GetMockEntries() =>
         [
             new() { Rank=1,  Username="CipherMaster",  AvatarInitials="CM", AvatarGradient="gold",   TeamName="ByteForce",    TotalScore=9850, ChallengesSolved=22, Country="US" },
             new() { Rank=2,  Username="n3tR4nger",     AvatarInitials="NR", AvatarGradient="silver", TeamName="CodeStrike",   TotalScore=9340, ChallengesSolved=21, Country="DE" },
