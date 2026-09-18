@@ -134,7 +134,47 @@
     outline-offset: -1px;
 }
 
-/* ─── Teams ──────────────────────────────────────────────── */
+/* ─── Dark-theme table overrides ────────────────────────── */
+/* Bootstrap's .table defaults to white — force dark colours  */
+.adm-table-card .table,
+.adm-table-card .table thead,
+.adm-table-card .table tbody,
+.adm-table-card .table tfoot,
+.adm-table-card .table tr,
+.adm-table-card .table th,
+.adm-table-card .table td {
+    background-color: transparent !important;
+    --bs-table-bg: transparent;
+    --bs-table-striped-bg: transparent;
+    --bs-table-hover-bg: transparent;
+    color: var(--ca-text-secondary);
+    border-color: var(--ca-border-light);
+}
+.adm-table-card .table thead th {
+    color: var(--ca-text-muted);
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 600;
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid var(--ca-border);
+}
+.adm-table-card .table tbody td {
+    padding: 0.85rem 1rem;
+    vertical-align: middle;
+}
+.adm-table-card .table tbody tr {
+    border-bottom: 1px solid var(--ca-border-light);
+    transition: background var(--ca-transition);
+}
+.adm-table-card .table tbody tr:last-child {
+    border-bottom: none;
+}
+.adm-table-card .table tbody tr:hover {
+    background: rgba(255,255,255,0.03) !important;
+}
+
+
 
 .team-card {
     background: var(--ca-bg-card);

@@ -283,7 +283,13 @@
                     <p id="flag-hint" style="font-size:0.75rem;color:var(--ca-text-muted);margin-top:0.4rem;margin-bottom:0;">
                         Format: <code style="color:var(--ca-accent);background:var(--ca-accent-light);padding:0.1em 0.4em;border-radius:3px;">CTF{...}</code>
                     </p>
-                    <span asp-validation-for="@(new FlagSubmissionViewModel())" class="field-validation-error d-block mt-1"></span>
+                    @if (!ViewData.ModelState.IsValid && ViewData.ModelState.ContainsKey("Flag"))
+                    {
+                        foreach (var err in ViewData.ModelState["Flag"]!.Errors)
+                        {
+                            <span class="field-validation-error d-block mt-1">@err.ErrorMessage</span>
+                        }
+                    }
 
                     <button type="submit"
                             id="btn-submit-flag"
