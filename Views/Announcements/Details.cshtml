@@ -1,0 +1,60 @@
+@model AnnouncementViewModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = Model.Title;
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/part3.css" asp-append-version="true" />
+}
+
+<div class="stagger-children">
+
+    <div class="mb-3">
+        <a asp-controller="Announcements" asp-action="Index" class="btn btn-secondary btn-sm" id="btn-back-ann">
+            <i class="fas fa-arrow-left me-1" aria-hidden="true"></i>All Announcements
+        </a>
+    </div>
+
+    <div class="ca-card mb-3" style="padding:0;">
+        <div style="padding:1.5rem 1.75rem;border-bottom:1px solid var(--ca-border-light);">
+            <div class="d-flex align-items-center gap-2 mb-2">
+                @if (Model.IsPinned)
+                {
+                    <span class="ann-pin-badge">
+                        <i class="fas fa-thumbtack" aria-hidden="true"></i>Pinned
+                    </span>
+                }
+                <span style="font-size:0.78rem;color:var(--ca-text-muted);">
+                    @Model.PublishedAt.ToString("dd MMMM yyyy, HH:mm") UTC
+                </span>
+            </div>
+            <h2 style="font-family:'Space Grotesk',sans-serif;font-size:1.4rem;font-weight:700;color:var(--ca-text-primary);margin:0 0 0.5rem;">
+                @Model.Title
+            </h2>
+            <div style="font-size:0.8rem;color:var(--ca-text-muted);display:flex;align-items:center;gap:0.5rem;">
+                <i class="fas fa-circle-user" style="color:var(--ca-accent);" aria-hidden="true"></i>
+                <span>@Model.AuthorName</span>
+                <span>·</span>
+                <span>@Model.TimeAgo</span>
+            </div>
+        </div>
+        <div class="ann-detail-body">
+            @foreach (var para in Model.Body.Split('\n').Where(p => !string.IsNullOrWhiteSpace(p)))
+            {
+                <p>@para</p>
+            }
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center">
+        <a asp-controller="Announcements" asp-action="Index" class="btn btn-secondary btn-sm">
+            <i class="fas fa-arrow-left me-1" aria-hidden="true"></i>Back
+        </a>
+        <span style="font-size:0.78rem;color:var(--ca-text-muted);">
+            <i class="fas fa-shield-halved me-1" style="color:var(--ca-accent);" aria-hidden="true"></i>
+            CyberArena Platform
+        </span>
+    </div>
+
+</div>

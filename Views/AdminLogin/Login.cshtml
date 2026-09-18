@@ -1,0 +1,120 @@
+@{
+    Layout  = null;   // ← completely standalone — no user layout
+    ViewData["Title"] = "Admin Login — CyberArena";
+    var returnUrl = ViewData["ReturnUrl"] as string;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+    <meta name="robots" content="noindex, nofollow" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap"
+          rel="stylesheet" />
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+          integrity="sha512-Avb2QiuDEEvB4bZJYdft2mNjVShBftLdPG8FJ0V7irTLQ8Uo0qcPxh4Plh7eecOVud5M0vVxW7gSB4bOqfyvA=="
+          crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="~/css/admin-panel.css" asp-append-version="true" />
+</head>
+<body class="adm-body">
+
+<main class="adm-login-root" id="admin-login-root">
+    <div class="adm-login-card">
+
+        @* Brand *@
+        <div class="adm-login-brand">
+            <div class="adm-login-brand-icon" aria-hidden="true">
+                <i class="fas fa-shield-halved"></i>
+            </div>
+            <div>
+                <span class="adm-login-brand-name">CyberArena</span>
+                <span class="adm-login-brand-tag">Admin Panel</span>
+            </div>
+        </div>
+
+        <h1 class="adm-login-title">Admin Sign In</h1>
+        <p class="adm-login-subtitle">Restricted access. Authorised personnel only.</p>
+
+        @* Validation errors *@
+        @if (!ViewData.ModelState.IsValid)
+        {
+            foreach (var err in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+            {
+                <div class="adm-login-error" role="alert">
+                    <i class="fas fa-circle-exclamation" aria-hidden="true"></i>
+                    @err.ErrorMessage
+                </div>
+            }
+        }
+
+        @* Login Form *@
+        <form asp-controller="AdminLogin" asp-action="Login" method="post" id="admin-login-form"
+              asp-route-returnUrl="@returnUrl">
+            @Html.AntiForgeryToken()
+
+            <div class="adm-login-field">
+                <label for="adm-username" class="adm-login-label">Username</label>
+                <div class="adm-login-input-wrap">
+                    <span class="adm-login-input-icon" aria-hidden="true">
+                        <i class="fas fa-user"></i>
+                    </span>
+                    <input type="text"
+                           id="adm-username"
+                           name="username"
+                           class="adm-login-input"
+                           placeholder="Admin username"
+                           autocomplete="username"
+                           required
+                           autofocus
+                           aria-label="Admin username" />
+                </div>
+            </div>
+
+            <div class="adm-login-field">
+                <label for="adm-password" class="adm-login-label">Password</label>
+                <div class="adm-login-input-wrap">
+                    <span class="adm-login-input-icon" aria-hidden="true">
+                        <i class="fas fa-lock"></i>
+                    </span>
+                    <input type="password"
+                           id="adm-password"
+                           name="password"
+                           class="adm-login-input"
+                           placeholder="Admin password"
+                           autocomplete="current-password"
+                           required
+                           aria-label="Admin password" />
+                </div>
+            </div>
+
+            <button type="submit" class="adm-login-btn" id="btn-admin-login">
+                <i class="fas fa-right-to-bracket" aria-hidden="true"></i>
+                Sign In to Admin Panel
+            </button>
+        </form>
+
+        @* Footer *@
+        <div class="adm-login-footer">
+            <i class="fas fa-lock" aria-hidden="true"></i>
+            <span>Secure admin access · Sessions expire in 60 minutes</span>
+        </div>
+
+    </div>
+</main>
+
+<script>
+// Show loading state on submit
+document.getElementById('admin-login-form').addEventListener('submit', function () {
+    var btn = document.getElementById('btn-admin-login');
+    btn.disabled  = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin" aria-hidden="true"></i> Verifying…';
+});
+</script>
+
+</body>
+</html>

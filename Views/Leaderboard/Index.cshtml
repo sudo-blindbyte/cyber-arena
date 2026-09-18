@@ -1,0 +1,214 @@
+@model LeaderboardViewModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Leaderboard";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/part3.css" asp-append-version="true" />
+}
+
+<div class="stagger-children">
+
+    @* ─── Page Header ──────────────────────────────────────── *@
+    <div class="p3-page-header">
+        <div>
+            <h2 class="p3-page-title">
+                <i class="fas fa-trophy" style="color:var(--ca-warning);" aria-hidden="true"></i>
+                Leaderboard
+            </h2>
+            <p class="p3-page-subtitle">Top performers across all challenges</p>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <div class="lb-search-wrap">
+                <span class="lb-search-icon"><i class="fas fa-magnifying-glass" aria-hidden="true"></i></span>
+                <input type="search"
+                       id="lb-search"
+                       class="lb-search-input"
+                       placeholder="Search players or teams…"
+                       value="@Model.SearchQuery"
+                       aria-label="Search leaderboard" />
+            </div>
+        </div>
+    </div>
+
+    @* ─── Current User Rank Banner ──────────────────────────── *@
+    <div class="ca-card d-flex align-items-center gap-3 mb-3" style="padding:1rem 1.4rem;">
+        <i class="fas fa-user-circle" style="color:var(--ca-accent);font-size:1.2rem;" aria-hidden="true"></i>
+        <div>
+            <span style="font-size:0.85rem;color:var(--ca-text-muted);">Your current rank</span>
+            <div style="font-family:'Space Grotesk',sans-serif;font-size:1.1rem;font-weight:700;color:var(--ca-text-primary);">
+                #@Model.CurrentUserRank — @Model.CurrentUsername
+            </div>
+        </div>
+        <a asp-controller="Dashboard" asp-action="Index" class="btn btn-outline-primary btn-sm ms-auto">
+            <i class="fas fa-gauge-high me-1" aria-hidden="true"></i>My Dashboard
+        </a>
+    </div>
+
+    @* ─── Top 3 Podium ─────────────────────────────────────── *@
+    @if (Model.Gold != null && Model.Silver != null && Model.Bronze != null)
+    {
+        <div class="ca-card mb-3 overflow-hidden" style="padding:0;">
+            <div style="padding:1.25rem 1.5rem 0;border-bottom:1px solid var(--ca-border-light);display:flex;align-items:center;justify-content:space-between;">
+                <span class="ca-section-title" style="margin:0;">
+                    <i class="fas fa-medal me-2" style="color:var(--ca-warning);" aria-hidden="true"></i>
+                    Top Performers
+                </span>
+            </div>
+            <div class="lb-podium" aria-label="Top 3 leaderboard podium">
+
+                @* 2nd place — Silver *@
+                <div class="lb-podium-item">
+                    <div class="lb-podium-avatar silver" aria-label="Rank 2">@Model.Silver.AvatarInitials</div>
+                    <div class="lb-podium-name">@Model.Silver.Username</div>
+                    <div class="lb-podium-team">@Model.Silver.TeamName</div>
+                    <div class="lb-podium-score">@Model.Silver.TotalScore.ToString("N0")</div>
+                    <div class="lb-podium-block silver">
+                        <span class="lb-podium-rank silver">#2</span>
+                    </div>
+                </div>
+
+                @* 1st place — Gold *@
+                <div class="lb-podium-item first">
+                    <div class="lb-podium-avatar gold" aria-label="Rank 1">@Model.Gold.AvatarInitials</div>
+                    <div class="lb-podium-name">@Model.Gold.Username</div>
+                    <div class="lb-podium-team">@Model.Gold.TeamName</div>
+                    <div class="lb-podium-score">@Model.Gold.TotalScore.ToString("N0")</div>
+                    <div class="lb-podium-block gold">
+                        <span class="lb-podium-rank gold">#1</span>
+                    </div>
+                </div>
+
+                @* 3rd place — Bronze *@
+                <div class="lb-podium-item">
+                    <div class="lb-podium-avatar bronze" aria-label="Rank 3">@Model.Bronze.AvatarInitials</div>
+                    <div class="lb-podium-name">@Model.Bronze.Username</div>
+                    <div class="lb-podium-team">@Model.Bronze.TeamName</div>
+                    <div class="lb-podium-score">@Model.Bronze.TotalScore.ToString("N0")</div>
+                    <div class="lb-podium-block bronze">
+                        <span class="lb-podium-rank bronze">#3</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    }
+
+    @* ─── Full Leaderboard Table ────────────────────────────── *@
+    <div class="adm-table-card">
+        <div class="adm-table-toolbar" style="justify-content:space-between;">
+            <span style="font-size:0.85rem;font-weight:600;color:var(--ca-text-primary);">
+                All Participants
+            </span>
+            <span style="font-size:0.82rem;color:var(--ca-text-muted);" id="lb-count-label" aria-live="polite">
+                <strong id="lb-visible-count">@Model.Entries.Count</strong> participants
+            </span>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table mb-0" aria-label="Full leaderboard">
+                <thead>
+                    <tr>
+                        <th style="width:60px;">Rank</th>
+                        <th>Player</th>
+                        <th>Team</th>
+                        <th class="text-center">Score</th>
+                        <th class="text-center">Solved</th>
+                        <th class="text-end" style="display:none;" id="lb-country-col">Country</th>
+                    </tr>
+                </thead>
+                <tbody id="lb-table-body">
+                    @foreach (var e in Model.Entries)
+                    {
+                        <tr class="lb-table-row @(e.IsCurrentUser ? "lb-current-user" : "")"
+                            data-username="@e.Username.ToLower()"
+                            data-team="@e.TeamName.ToLower()">
+                            <td>
+                                <span class="ca-rank-badge @e.RankBadgeClass">@e.Rank</span>
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="ca-user-avatar-sm @(e.RankBadgeClass == "gold" ? "alt-2" : e.RankBadgeClass == "silver" ? "alt-0" : e.RankBadgeClass == "bronze" ? "alt-2" : "")"
+                                         aria-hidden="true">
+                                        @e.AvatarInitials
+                                    </div>
+                                    <div>
+                                        <div style="font-weight:600;font-size:0.875rem;color:var(--ca-text-primary);">
+                                            @e.Username
+                                            @if (e.IsCurrentUser)
+                                            {
+                                                <span class="badge bg-primary ms-1">You</span>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <a asp-controller="Teams" asp-action="Index"
+                                   style="font-size:0.82rem;color:var(--ca-text-muted);">
+                                    @e.TeamName
+                                </a>
+                            </td>
+                            <td class="text-center">
+                                <span style="font-family:'Space Grotesk',sans-serif;font-weight:700;color:var(--ca-accent);">
+                                    @e.TotalScore.ToString("N0")
+                                </span>
+                            </td>
+                            <td class="text-center" style="color:var(--ca-text-secondary);font-size:0.875rem;">
+                                @e.ChallengesSolved
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        @* Empty state *@
+        <div class="ca-empty-state d-none" id="lb-empty" role="status" aria-live="polite">
+            <i class="fas fa-trophy" aria-hidden="true"></i>
+            <p>No participants match your search.</p>
+        </div>
+
+        <div style="padding:0.75rem 1.25rem;border-top:1px solid var(--ca-border-light);display:flex;align-items:center;justify-content:space-between;">
+            <span style="font-size:0.78rem;color:var(--ca-text-muted);">
+                Showing <span id="lb-footer-count">@Model.Entries.Count</span> participants
+            </span>
+            <span style="font-size:0.78rem;color:var(--ca-text-muted);">
+                <i class="fas fa-circle-info me-1" aria-hidden="true"></i>
+                Scores update every 5 minutes
+            </span>
+        </div>
+    </div>
+
+</div>
+
+@section Scripts {
+<script>
+(function () {
+    var rows    = document.querySelectorAll('.lb-table-row');
+    var empty   = document.getElementById('lb-empty');
+    var countEl = document.getElementById('lb-visible-count');
+    var footer  = document.getElementById('lb-footer-count');
+
+    function applyFilter() {
+        var q = (document.getElementById('lb-search').value || '').toLowerCase().trim();
+        var vis = 0;
+
+        rows.forEach(function (row) {
+            var user = row.dataset.username || '';
+            var team = row.dataset.team     || '';
+            var show = !q || user.includes(q) || team.includes(q);
+            row.style.display = show ? '' : 'none';
+            if (show) vis++;
+        });
+
+        empty.classList.toggle('d-none', vis > 0);
+        if (countEl) countEl.textContent = vis;
+        if (footer)  footer.textContent  = vis;
+    }
+
+    document.getElementById('lb-search').addEventListener('input', applyFilter);
+}());
+</script>
+}

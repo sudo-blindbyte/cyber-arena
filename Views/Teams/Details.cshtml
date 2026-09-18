@@ -1,0 +1,206 @@
+@model TeamDetailsViewModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = Model.Name;
+    var scoreHistoryJson = System.Text.Json.JsonSerializer.Serialize(Model.ScoreHistory);
+    var scoreLabelsJson  = System.Text.Json.JsonSerializer.Serialize(Model.ScoreHistoryLabels);
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/part3.css" asp-append-version="true" />
+}
+
+<div class="stagger-children">
+
+    @* Back button *@
+    <div class="mb-3">
+        <a asp-controller="Teams" asp-action="Index" class="btn btn-secondary btn-sm" id="btn-back-teams">
+            <i class="fas fa-arrow-left me-1" aria-hidden="true"></i>All Teams
+        </a>
+    </div>
+
+    @* ─── Team Hero ─────────────────────────────────────────── *@
+    <div class="team-hero mb-3">
+        <div class="d-flex align-items-flex-start gap-3 flex-wrap">
+            <div class="team-hero-avatar" aria-hidden="true">@Model.Name[0]</div>
+            <div style="flex:1;min-width:0;">
+                <div class="d-flex align-items-center gap-2 flex-wrap mb-1">
+                    <h2 style="font-family:'Space Grotesk',sans-serif;font-size:1.5rem;font-weight:700;color:var(--ca-text-primary);margin:0;">
+                        @Model.Name
+                    </h2>
+                    @if (Model.IsMyTeam)
+                    {
+                        <span class="badge bg-success">My Team</span>
+                    }
+                    <span class="ca-comp-status @(Model.Rank == 1 ? "active" : Model.Rank <= 3 ? "upcoming" : "ended")" style="font-size:0.75rem;">
+                        Rank #@Model.Rank
+                    </span>
+                </div>
+                @if (!string.IsNullOrEmpty(Model.Description))
+                {
+                    <p style="font-size:0.875rem;color:var(--ca-text-muted);margin:0 0 0.75rem;">@Model.Description</p>
+                }
+                <div class="d-flex align-items-center gap-3 flex-wrap" style="font-size:0.78rem;color:var(--ca-text-muted);">
+                    <span>
+                        <i class="fas fa-crown me-1" style="color:var(--ca-warning);" aria-hidden="true"></i>
+                        Captain: <strong style="color:var(--ca-text-primary);">@Model.CaptainUsername</strong>
+                    </span>
+                    <span>
+                        <i class="fas fa-users me-1" aria-hidden="true"></i>
+                        @Model.Members.Count member@(Model.Members.Count != 1 ? "s" : "")
+                    </span>
+                    <span>
+                        <i class="fas fa-globe me-1" aria-hidden="true"></i>
+                        @Model.Country
+                    </span>
+                    <span>
+                        <i class="fas fa-calendar me-1" aria-hidden="true"></i>
+                        Since @Model.CreatedAt.ToString("MMM yyyy")
+                    </span>
+                </div>
+            </div>
+            <div class="d-flex gap-3 flex-shrink-0 flex-wrap">
+                <div class="comp-detail-stat">
+                    <span class="comp-detail-stat-val" data-count="@Model.Score">@Model.Score.ToString("N0")</span>
+                    <span class="comp-detail-stat-label">Score</span>
+                </div>
+                <div class="comp-detail-stat">
+                    <span class="comp-detail-stat-val">@Model.ChallengesSolved</span>
+                    <span class="comp-detail-stat-label">Solved</span>
+                </div>
+                <div class="comp-detail-stat">
+                    <span class="comp-detail-stat-val">#@Model.Rank</span>
+                    <span class="comp-detail-stat-label">Global Rank</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3">
+
+        @* ─── Members ─────────────────────────────────────────── *@
+        <div class="col-12 col-lg-6">
+            <div class="ca-card h-100">
+                <div class="ca-card-header">
+                    <div>
+                        <h3 class="ca-card-title">
+                            <i class="fas fa-users me-2" style="color:var(--ca-accent);" aria-hidden="true"></i>
+                            Members
+                        </h3>
+                        <div class="ca-card-subtitle">@Model.Members.Count / 4 slots filled</div>
+                    </div>
+                    @if (Model.IsCaptain)
+                    {
+                        <button class="btn btn-outline-primary btn-sm" id="btn-invite" title="Invite member (coming soon)">
+                            <i class="fas fa-user-plus me-1" aria-hidden="true"></i>Invite
+                        </button>
+                    }
+                </div>
+
+                @foreach (var member in Model.Members)
+                {
+                    <div class="ca-team-member">
+                        <div class="ca-member-avatar @member.AvatarClass" aria-hidden="true">
+                            @member.AvatarInitials
+                        </div>
+                        <div class="ca-member-info">
+                            <div class="ca-member-name">
+                                @member.Username
+                                @if (member.IsCaptain)
+                                {
+                                    <i class="fas fa-crown ms-1" style="color:var(--ca-warning);font-size:0.7rem;" title="Captain" aria-label="Team Captain"></i>
+                                }
+                            </div>
+                            <div class="ca-member-role">
+                                @(member.IsCaptain ? "Captain" : "Member") ·
+                                Joined @member.JoinedAt.ToString("dd MMM yyyy")
+                            </div>
+                        </div>
+                        <div class="text-end">
+                            <div class="ca-member-score">@member.Score.ToString("N0") pts</div>
+                            <div style="font-size:0.72rem;color:var(--ca-text-muted);">@member.ChallengesSolved solved</div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        @* ─── Score Progression ───────────────────────────────── *@
+        <div class="col-12 col-lg-6">
+            <div class="ca-card h-100">
+                <div class="ca-card-header">
+                    <div>
+                        <h3 class="ca-card-title">
+                            <i class="fas fa-chart-line me-2" style="color:var(--ca-accent);" aria-hidden="true"></i>
+                            Score Progression
+                        </h3>
+                        <div class="ca-card-subtitle">Last 9 data points</div>
+                    </div>
+                </div>
+                <div class="adm-chart-wrap" style="height:200px;">
+                    <canvas id="teamScoreChart" aria-label="Team score progression chart"></canvas>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    @* ─── Challenge Progress ──────────────────────────────────── *@
+    <div class="ca-card mt-3">
+        <div class="ca-card-header">
+            <div>
+                <h3 class="ca-card-title">
+                    <i class="fas fa-flag me-2" style="color:var(--ca-accent);" aria-hidden="true"></i>
+                    Challenge Progress
+                </h3>
+                <div class="ca-card-subtitle">@Model.ChallengesSolved of @Model.TotalChallenges challenges solved</div>
+            </div>
+            <span style="font-family:'Space Grotesk',sans-serif;font-weight:700;color:var(--ca-accent);">
+                @Model.SolvedPercent%
+            </span>
+        </div>
+        <div class="ca-progress" style="height:8px;" aria-label="@Model.SolvedPercent% challenges solved">
+            <div class="ca-progress-bar" data-width="@Model.SolvedPercent" style="width:0;"></div>
+        </div>
+        <div class="d-flex justify-content-between mt-2" style="font-size:0.75rem;color:var(--ca-text-muted);">
+            <span>@Model.ChallengesSolved solved</span>
+            <span>@Model.TotalChallenges total</span>
+        </div>
+    </div>
+
+</div>
+
+@section Scripts {
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+(function () {
+    var ctx = document.getElementById('teamScoreChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: @Html.Raw(scoreLabelsJson),
+            datasets: [{
+                label: 'Score',
+                data: @Html.Raw(scoreHistoryJson),
+                borderColor: '#3B82F6',
+                backgroundColor: 'rgba(59,130,246,0.1)',
+                borderWidth: 2,
+                pointBackgroundColor: '#3B82F6',
+                pointRadius: 3,
+                tension: 0.35,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#64748B', font: { size: 10 } } },
+                y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#64748B', font: { size: 10 } } }
+            }
+        }
+    });
+}());
+</script>
+}

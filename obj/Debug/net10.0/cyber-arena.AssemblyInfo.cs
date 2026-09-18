@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("cyber-arena")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e08ba95f963fdaa5c6c2743dae2cd466af583683")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+828092fecbae0c12c2f710961ff6d52f55f943db")]
 [assembly: System.Reflection.AssemblyProductAttribute("cyber-arena")]
 [assembly: System.Reflection.AssemblyTitleAttribute("cyber-arena")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

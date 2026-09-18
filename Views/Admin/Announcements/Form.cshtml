@@ -1,0 +1,128 @@
+@model AnnouncementFormViewModel
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = Model.PageTitle;
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/part3.css" asp-append-version="true" />
+}
+
+<div class="stagger-children">
+
+    <div class="p3-page-header">
+        <div>
+            <h2 class="p3-page-title">
+                <i class="fas fa-bullhorn" style="color:var(--ca-accent);" aria-hidden="true"></i>
+                @Model.PageTitle
+            </h2>
+            <p class="p3-page-subtitle">
+                @(Model.IsEdit ? "Update an existing announcement" : "Publish a new announcement to all participants")
+            </p>
+        </div>
+        <a asp-controller="Admin" asp-action="Announcements" class="btn btn-secondary" id="btn-cancel-ann-form">
+            <i class="fas fa-arrow-left me-1" aria-hidden="true"></i>Cancel
+        </a>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-8">
+
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div class="alert alert-danger mb-3" role="alert">
+                    <i class="fas fa-circle-exclamation me-2" aria-hidden="true"></i>
+                    Please fix the errors below before publishing.
+                </div>
+            }
+
+            <div class="ca-card">
+                <div class="ca-card-header">
+                    <div>
+                        <h3 class="ca-card-title">Announcement Details</h3>
+                        <div class="ca-card-subtitle">
+                            @(Model.IsEdit ? $"Editing announcement #{Model.Id}" : "New announcement")
+                        </div>
+                    </div>
+                    @if (Model.IsPinned)
+                    {
+                        <span class="ann-pin-badge">
+                            <i class="fas fa-thumbtack" aria-hidden="true"></i>Pinned
+                        </span>
+                    }
+                </div>
+
+                @{
+                    var formAction = Model.IsEdit ? "AnnouncementEdit" : "AnnouncementCreate";
+                }
+                <form asp-controller="Admin"
+                      asp-action="@formAction"
+                      asp-route-id="@(Model.IsEdit ? Model.Id : null)"
+                      method="post"
+                      data-loading
+                      id="ann-form">
+                    @Html.AntiForgeryToken()
+
+                    <div class="mb-4">
+                        <label asp-for="Title" class="form-label"></label>
+                        <input asp-for="Title"
+                               class="form-control"
+                               id="input-ann-title"
+                               placeholder="Clear, descriptive title…"
+                               maxlength="200"
+                               autocomplete="off" />
+                        <span asp-validation-for="Title" class="field-validation-error"></span>
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="Body" class="form-label"></label>
+                        <textarea asp-for="Body"
+                                  class="form-control"
+                                  id="input-ann-body"
+                                  rows="8"
+                                  placeholder="Write the full announcement here. You can use line breaks to separate paragraphs."></textarea>
+                        <span asp-validation-for="Body" class="field-validation-error"></span>
+                        <div class="form-text" style="color:var(--ca-text-muted);font-size:0.75rem;">
+                            Line breaks will be rendered as separate paragraphs.
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <div class="form-check" style="display:flex;align-items:center;gap:0.75rem;padding:1rem;background:var(--ca-bg-base);border:1px solid var(--ca-border);border-radius:var(--ca-radius);">
+                            <input asp-for="IsPinned"
+                                   class="form-check-input"
+                                   id="input-ann-pinned"
+                                   type="checkbox"
+                                   style="width:1.1em;height:1.1em;margin:0;cursor:pointer;" />
+                            <div>
+                                <label asp-for="IsPinned" class="form-check-label"
+                                       style="cursor:pointer;font-weight:600;color:var(--ca-text-primary);margin:0;">
+                                    <i class="fas fa-thumbtack me-1" style="color:var(--ca-warning);" aria-hidden="true"></i>
+                                    @Html.DisplayNameFor(m => m.IsPinned)
+                                </label>
+                                <div style="font-size:0.75rem;color:var(--ca-text-muted);">
+                                    Pinned announcements appear at the top of the list with a highlight.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2 justify-content-end">
+                        <a asp-controller="Admin" asp-action="Announcements" class="btn btn-secondary">
+                            Cancel
+                        </a>
+                        <button type="submit" class="btn btn-primary" id="btn-submit-ann">
+                            <i class="fas @(Model.IsEdit ? "fa-save" : "fa-bullhorn") me-2" aria-hidden="true"></i>
+                            @Model.SubmitLabel
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

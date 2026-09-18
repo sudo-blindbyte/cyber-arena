@@ -1,0 +1,182 @@
+@model AnnouncementListViewModel
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Manage Announcements";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/part3.css" asp-append-version="true" />
+}
+
+<div class="stagger-children">
+
+    <div class="adm-header">
+        <div>
+            <h2 class="adm-title">
+                <i class="fas fa-bullhorn" style="color:var(--ca-accent);" aria-hidden="true"></i>
+                Announcements
+            </h2>
+            <p class="adm-subtitle">Create, edit, and manage platform announcements</p>
+        </div>
+        <div class="d-flex gap-2 flex-wrap">
+            <a asp-controller="Admin" asp-action="Index" class="btn btn-secondary btn-sm" id="btn-back-adm">
+                <i class="fas fa-arrow-left me-1" aria-hidden="true"></i>Dashboard
+            </a>
+            <a asp-controller="Admin" asp-action="AnnouncementCreate" class="btn btn-primary" id="btn-new-ann">
+                <i class="fas fa-plus me-2" aria-hidden="true"></i>New Announcement
+            </a>
+        </div>
+    </div>
+
+    @* ─── Stats strip ────────────────────────────────────────── *@
+    <div class="adm-stat-row mb-3">
+        <div class="adm-stat-chip">
+            <i class="fas fa-bullhorn" style="color:var(--ca-accent);" aria-hidden="true"></i>
+            <strong>@Model.Announcements.Count</strong>
+            <span>Total</span>
+        </div>
+        <div class="adm-stat-chip">
+            <i class="fas fa-thumbtack" style="color:var(--ca-warning);" aria-hidden="true"></i>
+            <strong>@Model.Pinned.Count</strong>
+            <span>Pinned</span>
+        </div>
+        <div class="adm-stat-chip">
+            <i class="fas fa-bell" style="color:var(--ca-success);" aria-hidden="true"></i>
+            <strong>@Model.Regular.Count</strong>
+            <span>Regular</span>
+        </div>
+    </div>
+
+    @* ─── Announcements Table ────────────────────────────────── *@
+    <div class="adm-table-card">
+        <div class="adm-table-toolbar">
+            <span style="font-weight:600;font-size:0.875rem;color:var(--ca-text-primary);">All Announcements</span>
+        </div>
+        <div class="table-responsive">
+            <table class="table mb-0" aria-label="Admin announcements table">
+                <thead>
+                    <tr>
+                        <th style="width:40px;">ID</th>
+                        <th>Title</th>
+                        <th>Author</th>
+                        <th class="text-center">Pinned</th>
+                        <th>Published</th>
+                        <th class="text-center" style="width:100px;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var ann in Model.Announcements)
+                    {
+                        <tr>
+                            <td style="color:var(--ca-text-muted);font-size:0.82rem;font-family:'Space Grotesk',sans-serif;">
+                                #@ann.Id
+                            </td>
+                            <td>
+                                <div style="font-weight:600;font-size:0.875rem;color:var(--ca-text-primary);">
+                                    @ann.Title
+                                </div>
+                                <div style="font-size:0.75rem;color:var(--ca-text-muted);">@ann.Excerpt[..Math.Min(60, ann.Excerpt.Length)]…</div>
+                            </td>
+                            <td style="font-size:0.82rem;color:var(--ca-text-muted);">@ann.AuthorName</td>
+                            <td class="text-center">
+                                @if (ann.IsPinned)
+                                {
+                                    <i class="fas fa-thumbtack" style="color:var(--ca-warning);" title="Pinned" aria-label="Pinned"></i>
+                                }
+                                else
+                                {
+                                    <span style="color:var(--ca-border);">—</span>
+                                }
+                            </td>
+                            <td style="font-size:0.78rem;color:var(--ca-text-muted);white-space:nowrap;">
+                                @ann.PublishedAt.ToString("dd MMM yyyy")
+                            </td>
+                            <td class="text-center">
+                                <div class="adm-actions justify-content-center">
+                                    <a asp-controller="Announcements" asp-action="Details" asp-route-id="@ann.Id"
+                                       class="adm-action-btn view" title="View public" aria-label="View announcement @ann.Id"
+                                       id="adm-ann-view-@ann.Id">
+                                        <i class="fas fa-eye" aria-hidden="true"></i>
+                                    </a>
+                                    <a asp-controller="Admin" asp-action="AnnouncementEdit" asp-route-id="@ann.Id"
+                                       class="adm-action-btn edit" title="Edit" aria-label="Edit announcement @ann.Id"
+                                       id="adm-ann-edit-@ann.Id">
+                                        <i class="fas fa-pen" aria-hidden="true"></i>
+                                    </a>
+                                    <form asp-controller="Admin" asp-action="AnnouncementDelete" asp-route-id="@ann.Id"
+                                          method="post" class="d-inline"
+                                          id="ann-delete-form-@ann.Id"
+                                          onsubmit="return confirmAnnDelete('@ann.Title.Replace("'","\\'")', @ann.Id)">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="adm-action-btn delete"
+                                                title="Delete" aria-label="Delete announcement @ann.Id"
+                                                id="adm-ann-delete-@ann.Id">
+                                            <i class="fas fa-trash" aria-hidden="true"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <div style="padding:0.75rem 1.25rem;border-top:1px solid var(--ca-border-light);display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:0.78rem;color:var(--ca-text-muted);">
+                @Model.Announcements.Count announcements total
+            </span>
+            <a asp-controller="Admin" asp-action="AnnouncementCreate" class="btn btn-primary btn-sm">
+                <i class="fas fa-plus me-1" aria-hidden="true"></i>Add Announcement
+            </a>
+        </div>
+    </div>
+
+</div>
+
+@* Delete confirmation modal *@
+<div class="modal fade" id="annDeleteModal" tabindex="-1" aria-labelledby="annDeleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:420px;">
+        <div class="modal-content" style="background:var(--ca-bg-card);border:1px solid var(--ca-border);border-radius:var(--ca-radius-xl);">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title" id="annDeleteModalLabel" style="color:var(--ca-text-primary);">
+                    <i class="fas fa-triangle-exclamation me-2" style="color:var(--ca-danger);" aria-hidden="true"></i>
+                    Confirm Delete
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" style="color:var(--ca-text-secondary);">
+                Delete <strong id="annDeleteTitle" style="color:var(--ca-text-primary);">this announcement</strong>?
+                <br /><small class="text-muted mt-2 d-block">This action cannot be undone.</small>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" id="confirmAnnDeleteBtn" id="btn-confirm-ann-delete">
+                    <i class="fas fa-trash me-1" aria-hidden="true"></i>Delete
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+(function () {
+    var pendingFormId = null;
+    var modal = new bootstrap.Modal(document.getElementById('annDeleteModal'));
+
+    window.confirmAnnDelete = function (title, id) {
+        document.getElementById('annDeleteTitle').textContent = '"' + title + '"';
+        pendingFormId = 'ann-delete-form-' + id;
+        modal.show();
+        return false;
+    };
+
+    document.getElementById('confirmAnnDeleteBtn').addEventListener('click', function () {
+        if (pendingFormId) {
+            modal.hide();
+            document.getElementById(pendingFormId).submit();
+        }
+    });
+}());
+</script>
+}

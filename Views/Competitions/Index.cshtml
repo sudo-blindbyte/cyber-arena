@@ -1,0 +1,173 @@
+@model CompetitionListViewModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Competitions";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/part3.css" asp-append-version="true" />
+}
+
+<div class="stagger-children">
+
+    @* ─── Page Header ──────────────────────────────────────── *@
+    <div class="p3-page-header">
+        <div>
+            <h2 class="p3-page-title">
+                <i class="fas fa-bolt" style="color:var(--ca-warning);" aria-hidden="true"></i>
+                Competitions
+            </h2>
+            <p class="p3-page-subtitle">@Model.Competitions.Count competitions available</p>
+        </div>
+        <div class="d-flex gap-2 flex-wrap">
+            <button class="p3-filter-btn @(Model.FilterStatus == "all" ? "active" : "")"
+                    id="btn-filter-all" onclick="filterComps('all')" aria-pressed="@(Model.FilterStatus == "all")">
+                All
+            </button>
+            <button class="p3-filter-btn @(Model.FilterStatus == "active" ? "active" : "")"
+                    id="btn-filter-active" onclick="filterComps('active')" aria-pressed="@(Model.FilterStatus == "active")">
+                <span class="d-flex align-items-center gap-1">
+                    <span style="width:6px;height:6px;border-radius:50%;background:var(--ca-success);display:inline-block;"></span>
+                    Active
+                </span>
+            </button>
+            <button class="p3-filter-btn @(Model.FilterStatus == "upcoming" ? "active" : "")"
+                    id="btn-filter-upcoming" onclick="filterComps('upcoming')" aria-pressed="@(Model.FilterStatus == "upcoming")">
+                Upcoming
+            </button>
+            <button class="p3-filter-btn @(Model.FilterStatus == "ended" ? "active" : "")"
+                    id="btn-filter-ended" onclick="filterComps('ended')" aria-pressed="@(Model.FilterStatus == "ended")">
+                Ended
+            </button>
+        </div>
+    </div>
+
+    @* ─── Active competitions banner ─────────────────────────── *@
+    @if (Model.Active.Any())
+    {
+        <div class="alert alert-success mb-3 d-flex align-items-center gap-2" role="alert" style="border-left-color:var(--ca-success);">
+            <i class="fas fa-circle-play fa-fw" aria-hidden="true"></i>
+            <span>
+                <strong>@Model.Active.Count active competition@(Model.Active.Count != 1 ? "s" : "") running now!</strong>
+                Join and start solving challenges.
+            </span>
+        </div>
+    }
+
+    @* ─── Competitions Grid ─────────────────────────────────── *@
+    <div class="row g-3" id="comp-grid">
+        @foreach (var comp in Model.Competitions)
+        {
+            <div class="col-12 col-md-6 col-xl-4 comp-grid-item"
+                 data-status="@comp.Status">
+                <div class="comp-card @comp.StatusClass h-100">
+                    <div class="comp-card-header">
+                        <div class="d-flex align-items-center gap-2" style="flex:1;min-width:0;">
+                            <div class="comp-icon @comp.StatusClass" aria-hidden="true">
+                                <i class="fas fa-bolt"></i>
+                            </div>
+                            <div style="min-width:0;">
+                                <div class="comp-card-name">@comp.Name</div>
+                                <div class="comp-card-desc">@comp.Description</div>
+                            </div>
+                        </div>
+                        <span class="ca-comp-status @comp.StatusClass ms-2 flex-shrink-0">
+                            @comp.Status.ToUpper()
+                        </span>
+                    </div>
+
+                    <div class="comp-card-meta">
+                        <div class="comp-meta-item">
+                            <i class="fas fa-flag" aria-hidden="true"></i>
+                            @comp.ChallengeCount challenges
+                        </div>
+                        <div class="comp-meta-item">
+                            <i class="fas fa-users" aria-hidden="true"></i>
+                            @comp.ParticipantCount / @comp.MaxParticipants
+                        </div>
+                        <div class="comp-meta-item">
+                            <i class="fas fa-user-group" aria-hidden="true"></i>
+                            @comp.Format
+                        </div>
+                    </div>
+
+                    <div class="comp-meta-item" style="font-size:0.78rem;color:var(--ca-text-muted);">
+                        <i class="fas fa-clock" aria-hidden="true"></i>
+                        @comp.TimeDisplay
+                    </div>
+
+                    @* Progress bar for active competitions *@
+                    @if (comp.Status == "active" && comp.MaxParticipants > 0)
+                    {
+                        var pct = (int)((double)comp.ParticipantCount / comp.MaxParticipants * 100);
+                        <div>
+                            <div class="d-flex justify-content-between mb-1" style="font-size:0.72rem;color:var(--ca-text-muted);">
+                                <span>Participants</span>
+                                <span>@pct%</span>
+                            </div>
+                            <div class="ca-progress">
+                                <div class="ca-progress-bar @(pct > 80 ? "warning" : "")" data-width="@pct" style="width:0;"></div>
+                            </div>
+                        </div>
+                    }
+
+                    <div class="d-flex gap-2 mt-auto">
+                        <a asp-controller="Competitions" asp-action="Details" asp-route-id="@comp.Id"
+                           class="btn btn-outline-primary btn-sm flex-1 w-100"
+                           id="btn-comp-details-@comp.Id">
+                            <i class="fas fa-eye me-1" aria-hidden="true"></i>View Details
+                        </a>
+                        @if (comp.Status == "active" && !comp.IsJoined)
+                        {
+                            <form asp-controller="Competitions" asp-action="Join" asp-route-id="@comp.Id"
+                                  method="post" class="d-inline">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-primary btn-sm"
+                                        id="btn-join-@comp.Id" aria-label="Join @comp.Name">
+                                    Join
+                                </button>
+                            </form>
+                        }
+                        @if (comp.IsJoined)
+                        {
+                            <span class="badge bg-success align-self-center">Joined</span>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    @* Empty state *@
+    <div class="ca-empty-state d-none" id="comp-empty" role="status" aria-live="polite">
+        <i class="fas fa-bolt" aria-hidden="true"></i>
+        <p>No competitions match this filter.</p>
+    </div>
+
+</div>
+
+@section Scripts {
+<script>
+function filterComps(status) {
+    var items = document.querySelectorAll('.comp-grid-item');
+    var empty = document.getElementById('comp-empty');
+    var vis   = 0;
+
+    // Update button states
+    document.querySelectorAll('.p3-filter-btn').forEach(function (btn) {
+        btn.classList.remove('active');
+        btn.setAttribute('aria-pressed', 'false');
+    });
+    var active = document.getElementById('btn-filter-' + status);
+    if (active) { active.classList.add('active'); active.setAttribute('aria-pressed', 'true'); }
+
+    items.forEach(function (item) {
+        var show = status === 'all' || item.dataset.status === status;
+        item.style.display = show ? '' : 'none';
+        if (show) vis++;
+    });
+
+    empty.classList.toggle('d-none', vis > 0);
+}
+</script>
+}

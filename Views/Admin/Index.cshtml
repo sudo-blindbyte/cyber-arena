@@ -1,0 +1,342 @@
+@model AdminDashboardViewModel
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Admin Dashboard";
+    var subLabels  = System.Text.Json.JsonSerializer.Serialize((string[])ViewBag.SubLabels);
+    var subCorrect = System.Text.Json.JsonSerializer.Serialize((int[])ViewBag.SubCorrect);
+    var subWrong   = System.Text.Json.JsonSerializer.Serialize((int[])ViewBag.SubWrong);
+    var catLabels  = System.Text.Json.JsonSerializer.Serialize((string[])ViewBag.CatLabels);
+    var catCounts  = System.Text.Json.JsonSerializer.Serialize((int[])ViewBag.CatCounts);
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/part3.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/challenges.css" asp-append-version="true" />
+}
+
+<div class="stagger-children">
+
+    @* ─── Page Header ──────────────────────────────────────── *@
+    <div class="adm-header">
+        <div>
+            <h2 class="adm-title">
+                <i class="fas fa-gauge-high" style="color:var(--ca-accent);" aria-hidden="true"></i>
+                Admin Dashboard
+            </h2>
+            <p class="adm-subtitle">Platform overview &amp; real-time activity</p>
+        </div>
+        <div class="d-flex gap-2 flex-wrap">
+            <a asp-controller="Admin" asp-action="Reports" class="btn btn-outline-primary btn-sm" id="btn-goto-reports">
+                <i class="fas fa-chart-bar me-1" aria-hidden="true"></i>Reports
+            </a>
+            <a asp-controller="Admin" asp-action="Challenges" class="btn btn-secondary btn-sm" id="btn-goto-challenges">
+                <i class="fas fa-flag me-1" aria-hidden="true"></i>Challenges
+            </a>
+            <a asp-controller="Admin" asp-action="Announcements" class="btn btn-secondary btn-sm" id="btn-goto-ann">
+                <i class="fas fa-bullhorn me-1" aria-hidden="true"></i>Announcements
+            </a>
+        </div>
+    </div>
+
+    @* ─── Stat Cards ────────────────────────────────────────── *@
+    <div class="row g-3 mb-3">
+        <div class="col-6 col-md-3">
+            <div class="ca-stat-card accent" aria-label="Total users">
+                <div class="ca-stat-info">
+                    <div class="ca-stat-label">Total Users</div>
+                    <div class="ca-stat-value" data-count="@Model.TotalUsers">0</div>
+                    <div class="ca-stat-delta up">
+                        <i class="fas fa-arrow-up" aria-hidden="true"></i>
+                        +@Model.NewUsersToday today
+                    </div>
+                </div>
+                <div class="ca-stat-icon">
+                    <i class="fas fa-users" aria-hidden="true"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="ca-stat-card success" aria-label="Total challenges">
+                <div class="ca-stat-info">
+                    <div class="ca-stat-label">Challenges</div>
+                    <div class="ca-stat-value" data-count="@Model.TotalChallenges">0</div>
+                    <div class="ca-stat-delta neutral">
+                        <i class="fas fa-flag" aria-hidden="true"></i>
+                        Across 8 categories
+                    </div>
+                </div>
+                <div class="ca-stat-icon">
+                    <i class="fas fa-flag" aria-hidden="true"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="ca-stat-card warning" aria-label="Active competitions">
+                <div class="ca-stat-info">
+                    <div class="ca-stat-label">Active Comps</div>
+                    <div class="ca-stat-value" data-count="@Model.ActiveCompetitions">0</div>
+                    <div class="ca-stat-delta up">
+                        <i class="fas fa-bolt" aria-hidden="true"></i>
+                        Running now
+                    </div>
+                </div>
+                <div class="ca-stat-icon">
+                    <i class="fas fa-bolt" aria-hidden="true"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="ca-stat-card info" aria-label="Total submissions">
+                <div class="ca-stat-info">
+                    <div class="ca-stat-label">Submissions</div>
+                    <div class="ca-stat-value" data-count="@Model.TotalSubmissions">0</div>
+                    <div class="ca-stat-delta up">
+                        <i class="fas fa-arrow-up" aria-hidden="true"></i>
+                        +@Model.SubmissionsToday today
+                    </div>
+                </div>
+                <div class="ca-stat-icon">
+                    <i class="fas fa-paper-plane" aria-hidden="true"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* ─── Charts Row ─────────────────────────────────────────── *@
+    <div class="row g-3 mb-3">
+        <div class="col-12 col-lg-8">
+            <div class="ca-card h-100">
+                <div class="ca-card-header">
+                    <div>
+                        <h3 class="ca-card-title">
+                            <i class="fas fa-chart-line me-2" style="color:var(--ca-accent);" aria-hidden="true"></i>
+                            Submissions (7 days)
+                        </h3>
+                        <div class="ca-card-subtitle">Correct vs. incorrect flag submissions</div>
+                    </div>
+                    <a asp-controller="Admin" asp-action="Reports" class="btn btn-secondary btn-sm">View Report</a>
+                </div>
+                <div class="adm-chart-wrap">
+                    <canvas id="submissionsChart" aria-label="Daily submissions chart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-lg-4">
+            <div class="ca-card h-100">
+                <div class="ca-card-header">
+                    <div>
+                        <h3 class="ca-card-title">
+                            <i class="fas fa-chart-pie me-2" style="color:var(--ca-info);" aria-hidden="true"></i>
+                            By Category
+                        </h3>
+                        <div class="ca-card-subtitle">Challenge distribution</div>
+                    </div>
+                </div>
+                <div class="adm-chart-wrap">
+                    <canvas id="categoryChart" aria-label="Challenge category distribution chart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* ─── Recent Submissions + Activity ─────────────────────── *@
+    <div class="row g-3">
+        <div class="col-12 col-lg-7">
+            <div class="adm-table-card">
+                <div class="adm-table-toolbar">
+                    <span style="font-weight:600;font-size:0.875rem;color:var(--ca-text-primary);">
+                        <i class="fas fa-paper-plane me-2" style="color:var(--ca-accent);" aria-hidden="true"></i>
+                        Recent Submissions
+                    </span>
+                    <a asp-controller="Admin" asp-action="Reports" class="btn btn-secondary btn-sm ms-auto">See All</a>
+                </div>
+                <div class="table-responsive">
+                    <table class="table mb-0" aria-label="Recent submissions">
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Challenge</th>
+                                <th class="text-center">Points</th>
+                                <th class="text-center">Result</th>
+                                <th>Time</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var sub in Model.RecentSubmissions)
+                            {
+                                <tr>
+                                    <td>
+                                        <span style="font-weight:600;font-size:0.82rem;">@sub.Username</span>
+                                    </td>
+                                    <td>
+                                        <div style="font-size:0.82rem;color:var(--ca-text-primary);">@sub.ChallengeName</div>
+                                        <div style="font-size:0.72rem;color:var(--ca-text-muted);">@sub.Category</div>
+                                    </td>
+                                    <td class="text-center">
+                                        <span style="font-family:'Space Grotesk',sans-serif;font-weight:700;color:var(--ca-accent);">
+                                            @sub.Points
+                                        </span>
+                                    </td>
+                                    <td class="text-center">
+                                        @if (sub.IsCorrect)
+                                        {
+                                            <span class="adm-status correct">Correct</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="adm-status wrong">Wrong</span>
+                                        }
+                                    </td>
+                                    <td style="font-size:0.75rem;color:var(--ca-text-muted);">@sub.TimeAgo</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-lg-5">
+            <div class="ca-card h-100">
+                <div class="ca-card-header">
+                    <h3 class="ca-card-title">
+                        <i class="fas fa-bolt me-2" style="color:var(--ca-warning);" aria-hidden="true"></i>
+                        User Activity
+                    </h3>
+                </div>
+                <ul class="ca-activity-list">
+                    @foreach (var act in Model.UserActivity)
+                    {
+                        <li class="ca-activity-item">
+                            <div class="ca-activity-icon"
+                                 style="background:var(--ca-@(act.IconColorClass)-light);color:var(--ca-@(act.IconColorClass));"
+                                 aria-hidden="true">
+                                <i class="fas @act.IconClass"></i>
+                            </div>
+                            <div class="ca-activity-body">
+                                <div class="ca-activity-text">
+                                    <strong>@act.Username</strong>
+                                    @switch (act.Action)
+                                    {
+                                        case "solved":      @(" solved "); break;
+                                        case "registered":  @(" created an account"); break;
+                                        case "joined_team": @(" joined team "); break;
+                                        case "joined_comp": @(" joined competition "); break;
+                                        default:            @(" performed an action"); break;
+                                    }
+                                    @if (act.Action != "registered")
+                                    {
+                                        <em style="color:var(--ca-text-primary);">@act.Detail</em>
+                                    }
+                                </div>
+                                <div class="ca-activity-time">@act.TimeAgo</div>
+                            </div>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    @* ─── Quick Links ────────────────────────────────────────── *@
+    <div class="ca-card mt-3">
+        <h3 class="ca-card-title mb-3">Quick Admin Actions</h3>
+        <div class="ca-quick-actions" style="grid-template-columns:repeat(auto-fit,minmax(130px,1fr));">
+            <a asp-controller="Admin" asp-action="ChallengeCreate" class="ca-quick-btn" id="qb-new-challenge">
+                <i class="fas fa-plus-circle" aria-hidden="true"></i>New Challenge
+            </a>
+            <a asp-controller="Admin" asp-action="AnnouncementCreate" class="ca-quick-btn" id="qb-new-ann">
+                <i class="fas fa-bullhorn" aria-hidden="true"></i>Announcement
+            </a>
+            <a asp-controller="Admin" asp-action="Reports" class="ca-quick-btn" id="qb-reports">
+                <i class="fas fa-chart-bar" aria-hidden="true"></i>Reports
+            </a>
+            <a asp-controller="Admin" asp-action="Challenges" class="ca-quick-btn" id="qb-manage-ch">
+                <i class="fas fa-shield-halved" aria-hidden="true"></i>Manage Challenges
+            </a>
+        </div>
+    </div>
+
+</div>
+
+@section Scripts {
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+(function () {
+    Chart.defaults.color = '#64748B';
+    Chart.defaults.borderColor = 'rgba(255,255,255,0.06)';
+
+    // ── Submissions Line Chart ──────────────────────────────
+    var subCtx = document.getElementById('submissionsChart').getContext('2d');
+    new Chart(subCtx, {
+        type: 'line',
+        data: {
+            labels: @Html.Raw(subLabels),
+            datasets: [
+                {
+                    label: 'Correct',
+                    data: @Html.Raw(subCorrect),
+                    borderColor: '#10B981',
+                    backgroundColor: 'rgba(16,185,129,0.1)',
+                    borderWidth: 2,
+                    pointRadius: 3,
+                    tension: 0.35,
+                    fill: true
+                },
+                {
+                    label: 'Wrong',
+                    data: @Html.Raw(subWrong),
+                    borderColor: '#EF4444',
+                    backgroundColor: 'rgba(239,68,68,0.08)',
+                    borderWidth: 2,
+                    pointRadius: 3,
+                    tension: 0.35,
+                    fill: true
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'bottom', labels: { usePointStyle: true, padding: 14 } }
+            },
+            scales: {
+                x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { font: { size: 11 } } },
+                y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { font: { size: 11 } }, beginAtZero: true }
+            }
+        }
+    });
+
+    // ── Category Doughnut Chart ─────────────────────────────
+    var catCtx = document.getElementById('categoryChart').getContext('2d');
+    new Chart(catCtx, {
+        type: 'doughnut',
+        data: {
+            labels: @Html.Raw(catLabels),
+            datasets: [{
+                data: @Html.Raw(catCounts),
+                backgroundColor: [
+                    'rgba(59,130,246,0.8)','rgba(16,185,129,0.8)','rgba(245,158,11,0.8)',
+                    'rgba(239,68,68,0.8)','rgba(139,92,246,0.8)','rgba(20,184,166,0.8)',
+                    'rgba(248,113,113,0.8)','rgba(167,139,250,0.8)'
+                ],
+                borderWidth: 0,
+                hoverOffset: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: { usePointStyle: true, padding: 8, font: { size: 10 } }
+                }
+            },
+            cutout: '65%'
+        }
+    });
+}());
+</script>
+}

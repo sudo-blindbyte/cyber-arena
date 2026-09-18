@@ -1,0 +1,101 @@
+@model AnnouncementListViewModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Announcements";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/part3.css" asp-append-version="true" />
+}
+
+<div class="stagger-children">
+
+    <div class="p3-page-header">
+        <div>
+            <h2 class="p3-page-title">
+                <i class="fas fa-bullhorn" style="color:var(--ca-accent);" aria-hidden="true"></i>
+                Announcements
+            </h2>
+            <p class="p3-page-subtitle">@Model.Announcements.Count announcements from the CyberArena team</p>
+        </div>
+    </div>
+
+    @* ─── Pinned Announcements ──────────────────────────────── *@
+    @if (Model.Pinned.Any())
+    {
+        <h3 class="ca-section-title">
+            <i class="fas fa-thumbtack" style="color:var(--ca-warning);" aria-hidden="true"></i>
+            Pinned
+        </h3>
+        @foreach (var ann in Model.Pinned)
+        {
+            <a asp-controller="Announcements" asp-action="Details" asp-route-id="@ann.Id"
+               class="ann-card pinned mb-2 d-block"
+               id="ann-@ann.Id"
+               aria-label="@ann.Title">
+                <div class="ann-card-header">
+                    <h4 class="ann-card-title">
+                        <i class="fas fa-thumbtack me-1" style="color:var(--ca-warning);font-size:0.8rem;" aria-hidden="true"></i>
+                        @ann.Title
+                    </h4>
+                    <span class="ann-pin-badge flex-shrink-0">
+                        <i class="fas fa-thumbtack" aria-hidden="true"></i>Pinned
+                    </span>
+                </div>
+                <p class="ann-card-excerpt">@ann.Excerpt</p>
+                <div class="ann-card-footer">
+                    <i class="fas fa-circle-user" aria-hidden="true"></i>
+                    <span>@ann.AuthorName</span>
+                    <span>·</span>
+                    <i class="fas fa-clock" aria-hidden="true"></i>
+                    <span>@ann.TimeAgo</span>
+                    <span class="ms-auto" style="color:var(--ca-accent);font-size:0.75rem;">
+                        Read more <i class="fas fa-arrow-right ms-1" aria-hidden="true"></i>
+                    </span>
+                </div>
+            </a>
+        }
+    }
+
+    @* ─── Regular Announcements ─────────────────────────────── *@
+    @if (Model.Regular.Any())
+    {
+        <h3 class="ca-section-title mt-3">
+            <i class="fas fa-bell" style="color:var(--ca-accent);" aria-hidden="true"></i>
+            Latest
+        </h3>
+        @foreach (var ann in Model.Regular)
+        {
+            <a asp-controller="Announcements" asp-action="Details" asp-route-id="@ann.Id"
+               class="ann-card mb-2 d-block"
+               id="ann-@ann.Id"
+               aria-label="@ann.Title">
+                <div class="ann-card-header">
+                    <h4 class="ann-card-title">@ann.Title</h4>
+                    <span style="font-size:0.75rem;color:var(--ca-text-muted);white-space:nowrap;flex-shrink:0;">
+                        @ann.PublishedAt.ToString("dd MMM")
+                    </span>
+                </div>
+                <p class="ann-card-excerpt">@ann.Excerpt</p>
+                <div class="ann-card-footer">
+                    <i class="fas fa-circle-user" aria-hidden="true"></i>
+                    <span>@ann.AuthorName</span>
+                    <span>·</span>
+                    <span>@ann.TimeAgo</span>
+                    <span class="ms-auto" style="color:var(--ca-accent);font-size:0.75rem;">
+                        Read more <i class="fas fa-arrow-right ms-1" aria-hidden="true"></i>
+                    </span>
+                </div>
+            </a>
+        }
+    }
+
+    @if (!Model.Announcements.Any())
+    {
+        <div class="ca-empty-state">
+            <i class="fas fa-bullhorn" aria-hidden="true"></i>
+            <p>No announcements yet. Check back soon!</p>
+        </div>
+    }
+
+</div>

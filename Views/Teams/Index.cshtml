@@ -1,0 +1,140 @@
+@model TeamListViewModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Teams";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/part3.css" asp-append-version="true" />
+}
+
+<div class="stagger-children">
+
+    @* ─── Page Header ──────────────────────────────────────── *@
+    <div class="p3-page-header">
+        <div>
+            <h2 class="p3-page-title">
+                <i class="fas fa-users" style="color:var(--ca-accent);" aria-hidden="true"></i>
+                Teams
+            </h2>
+            <p class="p3-page-subtitle">@Model.Teams.Count teams competing across all challenges</p>
+        </div>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+            <div class="lb-search-wrap">
+                <span class="lb-search-icon"><i class="fas fa-magnifying-glass" aria-hidden="true"></i></span>
+                <input type="search"
+                       id="team-search"
+                       class="lb-search-input"
+                       placeholder="Search teams…"
+                       value="@Model.SearchQuery"
+                       aria-label="Search teams" />
+            </div>
+            @if (!Model.UserHasTeam)
+            {
+                <a asp-controller="Teams" asp-action="Create" class="btn btn-primary" id="btn-create-team">
+                    <i class="fas fa-plus me-2" aria-hidden="true"></i>Create Team
+                </a>
+            }
+            else
+            {
+                <a asp-controller="Teams" asp-action="Details" asp-route-id="@Model.MyTeamId"
+                   class="btn btn-outline-primary" id="btn-my-team">
+                    <i class="fas fa-shield-halved me-2" aria-hidden="true"></i>My Team
+                </a>
+            }
+        </div>
+    </div>
+
+    @* ─── Teams Grid ────────────────────────────────────────── *@
+    @if (!Model.Teams.Any())
+    {
+        <div class="ca-empty-state">
+            <i class="fas fa-users" aria-hidden="true"></i>
+            <p>No teams found.</p>
+            <a asp-controller="Teams" asp-action="Create" class="btn btn-primary mt-2">Create a Team</a>
+        </div>
+    }
+    else
+    {
+        <div class="row g-3" id="teams-grid">
+            @foreach (var team in Model.Teams)
+            {
+                <div class="col-12 col-sm-6 col-xl-4 team-grid-item"
+                     data-name="@team.Name.ToLower()"
+                     data-captain="@team.CaptainUsername.ToLower()">
+                    <a asp-controller="Teams" asp-action="Details" asp-route-id="@team.Id"
+                       class="team-card @(team.IsMyTeam ? "my-team" : "") text-decoration-none h-100">
+
+                        <div class="team-card-header">
+                            <div class="team-avatar" aria-hidden="true">
+                                @team.Name[0]
+                            </div>
+                            <div style="flex:1;min-width:0;">
+                                <div class="team-card-name">
+                                    @team.Name
+                                    @if (team.IsMyTeam)
+                                    {
+                                        <span class="badge bg-success ms-1" style="font-size:0.62rem;">My Team</span>
+                                    }
+                                </div>
+                                <div class="team-card-captain">
+                                    <i class="fas fa-crown" style="color:var(--ca-warning);font-size:0.68rem;" aria-hidden="true"></i>
+                                    @team.CaptainUsername
+                                    <span style="margin-left:0.5rem;">@team.Country</span>
+                                </div>
+                            </div>
+                            <span class="ca-rank-badge @team.RankBadgeClass" aria-label="Rank @team.Rank">
+                                #@team.Rank
+                            </span>
+                        </div>
+
+                        <div class="team-card-stats">
+                            <div class="team-card-stat">
+                                <span class="team-card-stat-val" data-count="@team.Score">@team.Score.ToString("N0")</span>
+                                <span class="team-card-stat-label">Score</span>
+                            </div>
+                            <div class="team-card-stat">
+                                <span class="team-card-stat-val">@team.ChallengesSolved</span>
+                                <span class="team-card-stat-label">Solved</span>
+                            </div>
+                            <div class="team-card-stat">
+                                <span class="team-card-stat-val">@team.MemberCount</span>
+                                <span class="team-card-stat-label">Members</span>
+                            </div>
+                        </div>
+
+                    </a>
+                </div>
+            }
+        </div>
+
+        @* Empty state for search *@
+        <div class="ca-empty-state d-none" id="team-empty" role="status" aria-live="polite">
+            <i class="fas fa-users" aria-hidden="true"></i>
+            <p>No teams match your search.</p>
+        </div>
+    }
+
+</div>
+
+@section Scripts {
+<script>
+(function () {
+    var items  = document.querySelectorAll('.team-grid-item');
+    var empty  = document.getElementById('team-empty');
+
+    document.getElementById('team-search').addEventListener('input', function () {
+        var q = this.value.toLowerCase().trim();
+        var vis = 0;
+        items.forEach(function (item) {
+            var name    = item.dataset.name    || '';
+            var captain = item.dataset.captain || '';
+            var show = !q || name.includes(q) || captain.includes(q);
+            item.style.display = show ? '' : 'none';
+            if (show) vis++;
+        });
+        if (empty) empty.classList.toggle('d-none', vis > 0);
+    });
+}());
+</script>
+}

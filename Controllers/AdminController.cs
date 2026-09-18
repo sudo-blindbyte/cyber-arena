@@ -1,12 +1,15 @@
 using Microsoft.AspNetCore.Mvc;
 using cyber_arena.ViewModels;
+using cyber_arena.Filters;
 
 namespace cyber_arena.Controllers
 {
     /// <summary>
-    /// Admin controller for challenge management.
-    /// TODO: Protect all actions with [Authorize(Roles = "Admin")] once Identity is connected.
+    /// Admin controller — protected by [AdminAuthorize] (session-based).
+    /// All routes require a valid admin session (set by AdminLoginController).
+    /// TODO: Replace [AdminAuthorize] with [Authorize(Roles="Admin")] once ASP.NET Identity is connected.
     /// </summary>
+    [AdminAuthorize]
     public class AdminController : Controller
     {
         // ─── Mock Data ────────────────────────────────────────
@@ -211,6 +214,213 @@ namespace cyber_arena.Controllers
 
             TempData["AdminSuccess"] = $"Challenge #{id} has been deleted.";
             return RedirectToAction(nameof(Challenges));
+        }
+
+        // ══════════════════════════════════════════════════════
+        //  ADMIN DASHBOARD  —  /Admin
+        // ══════════════════════════════════════════════════════
+
+        [HttpGet]
+        [Route("Admin")]
+        public IActionResult Index()
+        {
+            ViewData["Title"]      = "Admin Dashboard";
+            ViewData["Breadcrumb"] = "Admin · Dashboard";
+
+            // TODO: Replace with EF Core aggregates
+            var vm = new AdminDashboardViewModel
+            {
+                TotalUsers         = 312,
+                TotalChallenges    = 24,
+                ActiveCompetitions = 1,
+                TotalSubmissions   = 4872,
+                NewUsersToday      = 18,
+                SubmissionsToday   = 143,
+                RecentSubmissions  =
+                [
+                    new() { Username="CipherMaster", ChallengeName="SQL Injection Basics",       Category="Web Security",       Points=100, IsCorrect=true,  SubmittedAt=DateTime.UtcNow.AddMinutes(-3)  },
+                    new() { Username="n3tR4nger",    ChallengeName="RSA Weak Key",               Category="Cryptography",       Points=300, IsCorrect=true,  SubmittedAt=DateTime.UtcNow.AddMinutes(-7)  },
+                    new() { Username="0x_exploit",   ChallengeName="CSRF Token Bypass",          Category="Web Security",       Points=250, IsCorrect=false, SubmittedAt=DateTime.UtcNow.AddMinutes(-12) },
+                    new() { Username="h4x0r_pro",    ChallengeName="Wireshark Hunt",             Category="Digital Forensics",  Points=150, IsCorrect=true,  SubmittedAt=DateTime.UtcNow.AddMinutes(-18) },
+                    new() { Username="shell_ghost",  ChallengeName="Anti-Debug Bypass",          Category="Reverse Engineering", Points=350, IsCorrect=true,  SubmittedAt=DateTime.UtcNow.AddMinutes(-25) },
+                    new() { Username="xor_queen",    ChallengeName="Buffer Overflow 101",        Category="Binary Exploitation", Points=250, IsCorrect=false, SubmittedAt=DateTime.UtcNow.AddMinutes(-31) },
+                    new() { Username="pwn_wizard",   ChallengeName="The Mysterious Developer",   Category="OSINT",              Points=100, IsCorrect=true,  SubmittedAt=DateTime.UtcNow.AddMinutes(-40) },
+                    new() { Username="hex_ninja",    ChallengeName="Hidden in Plain Sight",      Category="Steganography",      Points=100, IsCorrect=true,  SubmittedAt=DateTime.UtcNow.AddMinutes(-52) },
+                ],
+                UserActivity =
+                [
+                    new() { Username="h4x0r_pro",    AvatarInitials="AC", Action="solved",      Detail="SQL Injection Basics",  Timestamp=DateTime.UtcNow.AddMinutes(-18) },
+                    new() { Username="vuln_hunter",  AvatarInitials="VH", Action="joined_comp", Detail="CyberArena Open 2026",  Timestamp=DateTime.UtcNow.AddMinutes(-35) },
+                    new() { Username="sqli_master",  AvatarInitials="SM", Action="registered",  Detail="New account created",   Timestamp=DateTime.UtcNow.AddHours(-1)   },
+                    new() { Username="xss_panda",    AvatarInitials="XP", Action="joined_team", Detail="NullByte",              Timestamp=DateTime.UtcNow.AddHours(-2)   },
+                    new() { Username="fuzzy_logic",  AvatarInitials="FL", Action="solved",      Detail="Caesar's Secret",       Timestamp=DateTime.UtcNow.AddHours(-3)   },
+                    new() { Username="mem_leak",     AvatarInitials="ML", Action="registered",  Detail="New account created",   Timestamp=DateTime.UtcNow.AddHours(-5)   },
+                ],
+            };
+
+            // Chart data passed via ViewBag — arrays serialised to JSON in the view
+            ViewBag.SubLabels   = new[] { "Sep 12","Sep 13","Sep 14","Sep 15","Sep 16","Sep 17","Sep 18" };
+            ViewBag.SubCorrect  = new[] { 98, 124, 87, 201, 176, 143, 165 };
+            ViewBag.SubWrong    = new[] { 34, 52, 31, 78, 65, 54, 61 };
+            ViewBag.CatLabels   = ChallengeCategories.All;
+            ViewBag.CatCounts   = new[] { 5, 4, 4, 3, 2, 2, 2, 2 };
+
+            return View(vm);
+        }
+
+        // ══════════════════════════════════════════════════════
+        //  REPORTS  —  /Admin/Reports
+        // ══════════════════════════════════════════════════════
+
+        [HttpGet]
+        [Route("Admin/Reports")]
+        public IActionResult Reports()
+        {
+            ViewData["Title"]      = "Reports";
+            ViewData["Breadcrumb"] = "Admin · Reports";
+
+            var allChallenges = GetMockAdminChallenges();
+
+            var vm = new ReportViewModel
+            {
+                TotalSubmissions   = 4872,
+                CorrectSubmissions = 3109,
+                UniqueUsers        = 287,
+                AvgSolveTime       = 2.4,
+                MostSolved  = allChallenges
+                    .OrderByDescending(c => c.SolverCount)
+                    .Take(8)
+                    .Select(c => new ChallengeSolveStatItem
+                    {
+                        Id=c.Id, Title=c.Title, Category=c.Category,
+                        Points=c.Points, SolverCount=c.SolverCount,
+                        SolveRate=Math.Round((double)c.SolverCount / 312 * 100, 1),
+                        Difficulty=c.Difficulty
+                    }).ToList(),
+                LeastSolved = allChallenges
+                    .Where(c => c.Status == ChallengeStatus.Active)
+                    .OrderBy(c => c.SolverCount)
+                    .Take(8)
+                    .Select(c => new ChallengeSolveStatItem
+                    {
+                        Id=c.Id, Title=c.Title, Category=c.Category,
+                        Points=c.Points, SolverCount=c.SolverCount,
+                        SolveRate=Math.Round((double)c.SolverCount / 312 * 100, 1),
+                        Difficulty=c.Difficulty
+                    }).ToList(),
+                TeamPerformance =
+                [
+                    new() { Rank=1, Name="ByteForce",   Score=32400, Solved=58, Members=4 },
+                    new() { Rank=2, Name="CodeStrike",  Score=28900, Solved=52, Members=3 },
+                    new() { Rank=3, Name="NullByte",    Score=25600, Solved=47, Members=4 },
+                    new() { Rank=4, Name="PhantomByte", Score=21300, Solved=41, Members=3 },
+                    new() { Rank=5, Name="ShadowStack", Score=17800, Solved=34, Members=2 },
+                    new() { Rank=6, Name="ZeroDay",     Score=14200, Solved=28, Members=4 },
+                    new() { Rank=7, Name="PwnStars",    Score=11500, Solved=22, Members=2 },
+                    new() { Rank=8, Name="CryptoKings", Score=9100,  Solved=17, Members=3 },
+                ]
+            };
+
+            // Chart data
+            ViewBag.SubLabels      = new[] { "Sep 12","Sep 13","Sep 14","Sep 15","Sep 16","Sep 17","Sep 18" };
+            ViewBag.SubData        = new[] { 132, 176, 118, 279, 241, 197, 226 };
+            ViewBag.CatLabels      = ChallengeCategories.All;
+            ViewBag.CatSolves      = new[] { 426, 343, 278, 312, 127, 226, 193, 81 };
+            ViewBag.TeamLabels     = new[] { "ByteForce","CodeStrike","NullByte","PhantomByte","ShadowStack","ZeroDay" };
+            ViewBag.TeamScores     = new[] { 32400, 28900, 25600, 21300, 17800, 14200 };
+            ViewBag.UserLabels     = new[] { "Sep 12","Sep 13","Sep 14","Sep 15","Sep 16","Sep 17","Sep 18" };
+            ViewBag.UserActive     = new[] { 87, 112, 76, 134, 128, 109, 121 };
+
+            return View(vm);
+        }
+
+        // ══════════════════════════════════════════════════════
+        //  ADMIN ANNOUNCEMENTS  —  /Admin/Announcements
+        // ══════════════════════════════════════════════════════
+
+        [HttpGet]
+        [Route("Admin/Announcements")]
+        public IActionResult Announcements()
+        {
+            ViewData["Title"]      = "Manage Announcements";
+            ViewData["Breadcrumb"] = "Admin · Announcements";
+
+            var vm = new AnnouncementListViewModel
+            {
+                Announcements = AnnouncementsController.GetMockAnnouncements()
+            };
+            return View("Announcements/Index", vm);
+        }
+
+        [HttpGet]
+        [Route("Admin/Announcements/Create")]
+        public IActionResult AnnouncementCreate()
+        {
+            ViewData["Title"]      = "Create Announcement";
+            ViewData["Breadcrumb"] = "Admin · Announcements · Create";
+            return View("Announcements/Form", new AnnouncementFormViewModel());
+        }
+
+        [HttpPost]
+        [Route("Admin/Announcements/Create")]
+        [ValidateAntiForgeryToken]
+        public IActionResult AnnouncementCreate(AnnouncementFormViewModel model)
+        {
+            ViewData["Title"]      = "Create Announcement";
+            ViewData["Breadcrumb"] = "Admin · Announcements · Create";
+
+            if (!ModelState.IsValid)
+                return View("Announcements/Form", model);
+
+            // TODO: EF Core — _db.Announcements.Add(...); await _db.SaveChangesAsync();
+            TempData["AdminSuccess"] = $"Announcement \"{model.Title}\" published successfully.";
+            return RedirectToAction(nameof(Announcements));
+        }
+
+        [HttpGet]
+        [Route("Admin/Announcements/Edit/{id}")]
+        public IActionResult AnnouncementEdit(int id)
+        {
+            var ann = AnnouncementsController.GetMockAnnouncements().FirstOrDefault(a => a.Id == id);
+            if (ann == null) return NotFound();
+
+            var vm = new AnnouncementFormViewModel
+            {
+                Id       = ann.Id,
+                Title    = ann.Title,
+                Body     = ann.Body,
+                IsPinned = ann.IsPinned,
+            };
+            ViewData["Title"]      = $"Edit — {ann.Title}";
+            ViewData["Breadcrumb"] = "Admin · Announcements · Edit";
+            return View("Announcements/Form", vm);
+        }
+
+        [HttpPost]
+        [Route("Admin/Announcements/Edit/{id}")]
+        [ValidateAntiForgeryToken]
+        public IActionResult AnnouncementEdit(int id, AnnouncementFormViewModel model)
+        {
+            model.Id = id;
+            ViewData["Title"]      = "Edit Announcement";
+            ViewData["Breadcrumb"] = "Admin · Announcements · Edit";
+
+            if (!ModelState.IsValid)
+                return View("Announcements/Form", model);
+
+            // TODO: EF Core — find, update, save
+            TempData["AdminSuccess"] = $"Announcement \"{model.Title}\" updated successfully.";
+            return RedirectToAction(nameof(Announcements));
+        }
+
+        [HttpPost]
+        [Route("Admin/Announcements/Delete/{id}")]
+        [ValidateAntiForgeryToken]
+        public IActionResult AnnouncementDelete(int id)
+        {
+            // TODO: EF Core — find, remove, save
+            TempData["AdminSuccess"] = $"Announcement #{id} has been deleted.";
+            return RedirectToAction(nameof(Announcements));
         }
     }
 }
