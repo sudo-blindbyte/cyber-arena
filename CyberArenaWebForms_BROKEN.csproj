@@ -1,0 +1,308 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+
+  <PropertyGroup>
+	<VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">16.0</VisualStudioVersion>
+	<VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+	<WebApplicationProjectDll>Microsoft.WebApplication.Build.Tasks.dll</WebApplicationProjectDll>
+  </PropertyGroup>
+
+  <PropertyGroup>
+	<Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+	<Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+	<ProductVersion>8.0.30703</ProductVersion>
+	<SchemaVersion>2.0</SchemaVersion>
+	<ProjectGuid>{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}</ProjectGuid>
+	<ProjectTypeGuids>{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
+	<OutputType>Library</OutputType>
+	<AppDesignerFolder>Properties</AppDesignerFolder>
+	<RootNamespace>CyberArenaWebForms</RootNamespace>
+	<AssemblyName>CyberArenaWebForms</AssemblyName>
+	<TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+	<MvcBuildViews>false</MvcBuildViews>
+	<UseIISExpress>true</UseIISExpress>
+	<Use64BitIISExpress />
+	<IISExpressSSLPort />
+	<IISExpressAnonymousAuthentication />
+	<IISExpressWindowsAuthentication />
+	<IISExpressUseClassicPipelineMode />
+	<UseGlobalApplicationHostFile />
+	<NuGetPackageImportStamp></NuGetPackageImportStamp>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+	<DebugSymbols>true</DebugSymbols>
+	<DebugType>full</DebugType>
+	<Optimize>false</Optimize>
+	<OutputPath>bin\</OutputPath>
+	<DefineConstants>DEBUG;TRACE</DefineConstants>
+	<ErrorReport>prompt</ErrorReport>
+	<WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+	<DebugSymbols>true</DebugSymbols>
+	<DebugType>pdbonly</DebugType>
+	<Optimize>true</Optimize>
+	<OutputPath>bin\</OutputPath>
+	<DefineConstants>TRACE</DefineConstants>
+	<ErrorReport>prompt</ErrorReport>
+	<WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+
+  <!-- References -->
+  <ItemGroup>
+	<Reference Include="Microsoft.CSharp" />
+	<Reference Include="System" />
+	<Reference Include="System.Core" />
+	<Reference Include="System.Data" />
+	<Reference Include="System.ComponentModel.DataAnnotations" />
+	<Reference Include="System.Drawing" />
+	<Reference Include="System.Web" />
+	<Reference Include="System.Web.ApplicationServices" />
+	<Reference Include="System.Web.DynamicData" />
+	<Reference Include="System.Web.Entity" />
+	<Reference Include="System.Web.Extensions" />
+	<Reference Include="System.Web.Routing" />
+	<Reference Include="System.Xml" />
+	<Reference Include="System.Xml.Linq" />
+  </ItemGroup>
+
+  <!-- Compile items -->
+  <ItemGroup>
+	<Compile Include="Properties\AssemblyInfo.cs" />
+	<Compile Include="Helpers\SessionHelper.cs" />
+	<Compile Include="Global.asax.cs">
+	  <DependentUpon>Global.asax</DependentUpon>
+	</Compile>
+  </ItemGroup>
+
+  <!-- Master Pages -->
+  <ItemGroup>
+	<Content Include="Site.Master" />
+	<Compile Include="Site.Master.cs">
+	  <DependentUpon>Site.Master</DependentUpon>
+	  <SubType>ASPXCodeBehind</SubType>
+	</Compile>
+	<Content Include="Auth.Master" />
+	<Compile Include="Auth.Master.cs">
+	  <DependentUpon>Auth.Master</DependentUpon>
+	  <SubType>ASPXCodeBehind</SubType>
+	</Compile>
+	<Content Include="Admin.Master" />
+	<Compile Include="Admin.Master.cs">
+	  <DependentUpon>Admin.Master</DependentUpon>
+	  <SubType>ASPXCodeBehind</SubType>
+	</Compile>
+  </ItemGroup>
+
+  <!-- Root Pages -->
+  <ItemGroup>
+	<Content Include="Default.aspx" />
+	<Compile Include="Default.aspx.cs">
+	  <DependentUpon>Default.aspx</DependentUpon>
+	  <SubType>ASPXCodeBehind</SubType>
+	</Compile>
+	<Content Include="AdminLogin.aspx" />
+	<Compile Include="AdminLogin.aspx.cs">
+	  <DependentUpon>AdminLogin.aspx</DependentUpon>
+	  <SubType>ASPXCodeBehind</SubType>
+	</Compile>
+  </ItemGroup>
+
+  <!-- Account Pages -->
+  <ItemGroup>
+	<Content Include="Account\Login.aspx" />
+	<Compile Include="Account\Login.aspx.cs">
+	  <DependentUpon>Login.aspx</DependentUpon>
+	  <SubType>ASPXCodeBehind</SubType>
+	</Compile>
+	<Content Include="Account\Register.aspx" />
+	<Compile Include="Account\Register.aspx.cs">
+	  <DependentUpon>Register.aspx</DependentUpon>
+	  <SubType>ASPXCodeBehind</SubType>
+	</Compile>
+	<Content Include="Account\Profile.aspx" />
+	<Compile Include="Account\Profile.aspx.cs">
+	  <DependentUpon>Profile.aspx</DependentUpon>
+	  <SubType>ASPXCodeBehind</SubType>
+	</Compile>
+  </ItemGroup>
+
+  <!-- Models -->
+  <ItemGroup>
+	<Compile Include="Models\DashboardModels.cs" />
+	<Compile Include="Models\ChallengeModels.cs" />
+	<Compile Include="Models\LeaderboardModels.cs" />
+	<Compile Include="Models\TeamModels.cs" />
+	<Compile Include="Models\CompetitionModels.cs" />
+	<Compile Include="Models\AdminModels.cs" />
+	<Compile Include="Models\ProfileViewModel.cs" />
+	<Compile Include="Models\ChallengeStatus.cs" />
+  </ItemGroup>
+
+  <!-- Control Stubs for missing markup -->
+  <ItemGroup>
+	<Compile Include="Site_Stubs.cs" />
+	<Compile Include="Auth_Stubs.cs" />
+	<Compile Include="Admin_Master_Stubs.cs" />
+	<Compile Include="Challenges\Challenges_Stubs.cs" />
+	<Compile Include="Admin\Admin_Stubs.cs" />
+	<Compile Include="Dashboard\Dashboard_Stubs.cs" />
+	<Compile Include="Leaderboard\Leaderboard_Stubs.cs" />
+  </ItemGroup>
+
+  <!-- Competitions Pages -->
+  <ItemGroup>
+	<Content Include="Competitions\Competitions.aspx" />
+	<Compile Include="Competitions\Competitions.aspx.cs">
+	  <DependentUpon>Competitions.aspx</DependentUpon>
+	  <SubType>ASPXCodeBehind</SubType>
+	</Compile>
+	<Content Include="Competitions\CompetitionDetails.aspx" />
+	<Compile Include="Competitions\CompetitionDetails.aspx.cs">
+	  <DependentUpon>CompetitionDetails.aspx</DependentUpon>
+	  <SubType>ASPXCodeBehind</SubType>
+	</Compile>
+  </ItemGroup>
+
+  <!-- Teams Pages -->
+  <ItemGroup>
+	<Content Include="Teams\Teams.aspx" />
+	<Compile Include="Teams\Teams.aspx.cs">
+	  <DependentUpon>Teams.aspx</DependentUpon>
+	  <SubType>ASPXCodeBehind</SubType>
+	</Compile>
+	<Content Include="Teams\CreateTeam.aspx" />
+	<Compile Include="Teams\CreateTeam.aspx.cs">
+	  <DependentUpon>CreateTeam.aspx</DependentUpon>
+	  <SubType>ASPXCodeBehind</SubType>
+	</Compile>
+	<Content Include="Teams\TeamDetails.aspx" />
+	<Compile Include="Teams\TeamDetails.aspx.cs">
+	  <DependentUpon>TeamDetails.aspx</DependentUpon>
+	  <SubType>ASPXCodeBehind</SubType>
+	</Compile>
+  </ItemGroup>
+
+  <!-- Leaderboard Pages -->
+  <ItemGroup>
+	<Content Include="Leaderboard\Leaderboard.aspx" />
+	<Compile Include="Leaderboard\Leaderboard.aspx.cs">
+	  <DependentUpon>Leaderboard.aspx</DependentUpon>
+	  <SubType>ASPXCodeBehind</SubType>
+	</Compile>
+  </ItemGroup>
+
+  <!-- Challenges Pages -->
+  <ItemGroup>
+	<Content Include="Challenges\Challenges.aspx" />
+	<Compile Include="Challenges\Challenges.aspx.cs">
+	  <DependentUpon>Challenges.aspx</DependentUpon>
+	  <SubType>ASPXCodeBehind</SubType>
+	</Compile>
+  </ItemGroup>
+
+  <!-- Dashboard Pages -->
+  <ItemGroup>
+	<Content Include="Dashboard\Dashboard.aspx" />
+	<Compile Include="Dashboard\Dashboard.aspx.cs">
+	  <DependentUpon>Dashboard.aspx</DependentUpon>
+	  <SubType>ASPXCodeBehind</SubType>
+	</Compile>
+  </ItemGroup>
+
+  <!-- Admin Pages -->
+  <ItemGroup>
+	<Content Include="Admin\Admin.aspx" />
+	<Compile Include="Admin\Admin.aspx.cs">
+	  <DependentUpon>Admin.aspx</DependentUpon>
+	  <SubType>ASPXCodeBehind</SubType>
+	</Compile>
+	<Content Include="Admin\Reports.aspx" />
+	<Compile Include="Admin\Reports.aspx.cs">
+	  <DependentUpon>Reports.aspx</DependentUpon>
+	  <SubType>ASPXCodeBehind</SubType>
+	</Compile>
+	<Content Include="Admin\Announcements.aspx" />
+	<Compile Include="Admin\Announcements.aspx.cs">
+	  <DependentUpon>Announcements.aspx</DependentUpon>
+	  <SubType>ASPXCodeBehind</SubType>
+	</Compile>
+	<Content Include="Admin\AnnouncementForm.aspx" />
+	<Compile Include="Admin\AnnouncementForm.aspx.cs">
+	  <DependentUpon>AnnouncementForm.aspx</DependentUpon>
+	  <SubType>ASPXCodeBehind</SubType>
+	</Compile>
+	<Content Include="Admin\Challenges.aspx" />
+	<Compile Include="Admin\Challenges.aspx.cs">
+	  <DependentUpon>Challenges.aspx</DependentUpon>
+	  <SubType>ASPXCodeBehind</SubType>
+	</Compile>
+	<Content Include="Admin\ChallengeForm.aspx" />
+	<Compile Include="Admin\ChallengeForm.aspx.cs">
+	  <DependentUpon>ChallengeForm.aspx</DependentUpon>
+	  <SubType>ASPXCodeBehind</SubType>
+	</Compile>
+	<Content Include="Admin\ChallengeDetails.aspx" />
+	<Compile Include="Admin\ChallengeDetails.aspx.cs">
+	  <DependentUpon>ChallengeDetails.aspx</DependentUpon>
+	  <SubType>ASPXCodeBehind</SubType>
+	</Compile>
+  </ItemGroup>
+
+  <!-- Static Content -->
+  <ItemGroup>
+	<Content Include="CSS\site.css" />
+	<Content Include="CSS\cyber-arena.css" />
+	<Content Include="CSS\auth.css" />
+	<Content Include="CSS\challenges.css" />
+	<Content Include="CSS\admin-panel.css" />
+	<Content Include="CSS\part3.css" />
+	<Content Include="JS\site.js" />
+	<Content Include="JS\cyber-arena.js" />
+	<Content Include="Web.config" />
+	<Content Include="Global.asax" />
+	<None Include="favicon.ico" />
+  </ItemGroup>
+
+  <!-- Folders -->
+  <ItemGroup>
+	<Folder Include="App_Data\" />
+	<Folder Include="Account\" />
+	<Folder Include="Admin\" />
+	<Folder Include="Challenges\" />
+	<Folder Include="Competitions\" />
+	<Folder Include="Dashboard\" />
+	<Folder Include="Leaderboard\" />
+	<Folder Include="Teams\" />
+	<Folder Include="Models\" />
+	<Folder Include="Images\" />
+	<Folder Include="Scripts\" />
+  </ItemGroup>
+
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+
+  <!-- Conditionally import WebApplication targets for Web development support -->
+  <Import Project="$(VSToolsPath)\WebApplications\Microsoft.WebApplication.targets" Condition="'$(VSToolsPath)' != '' and Exists('$(VSToolsPath)\WebApplications\Microsoft.WebApplication.targets')" />
+
+  <ProjectExtensions>
+	<VisualStudio>
+	  <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
+		<WebProjectProperties>
+		  <UseIIS>True</UseIIS>
+		  <AutoAssignPort>True</AutoAssignPort>
+		  <DevelopmentServerPort>50000</DevelopmentServerPort>
+		  <DevelopmentServerVPath>/</DevelopmentServerVPath>
+		  <IISUrl>http://localhost:50000/</IISUrl>
+		  <NTLMAuthentication>False</NTLMAuthentication>
+		  <UseCustomServer>False</UseCustomServer>
+		  <CustomServerUrl></CustomServerUrl>
+		  <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
+		</WebProjectProperties>
+	  </FlavorProperties>
+	</VisualStudio>
+  </ProjectExtensions>
+
+</Project>

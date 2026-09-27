@@ -1,0 +1,501 @@
+/* ============================================================
+   CyberArena — Admin Panel Styles
+   Admin Login · Admin Layout · Admin Sidebar/Topbar
+   ============================================================ */
+
+/* ─── Admin Login Page ────────────────────────────────────── */
+
+.adm-login-root {
+    min-height: 100vh;
+    background: #0D1117;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Ambient background glow */
+.adm-login-root::before {
+    content: '';
+    position: fixed;
+    top: -200px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 600px;
+    height: 600px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(239,68,68,0.12) 0%, transparent 70%);
+    pointer-events: none;
+}
+.adm-login-root::after {
+    content: '';
+    position: fixed;
+    bottom: -200px;
+    right: -100px;
+    width: 500px;
+    height: 500px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(139,92,246,0.08) 0%, transparent 70%);
+    pointer-events: none;
+}
+
+.adm-login-card {
+    width: 100%;
+    max-width: 420px;
+    background: #1A2035;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 20px;
+    padding: 2.5rem 2.25rem;
+    box-shadow: 0 24px 64px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.04);
+    position: relative;
+    z-index: 1;
+}
+
+/* Red top accent for admin (distinguishes from user login) */
+.adm-login-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #EF4444, #F97316, #8B5CF6);
+    border-radius: 20px 20px 0 0;
+}
+
+.adm-login-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 2rem;
+}
+.adm-login-brand-icon {
+    width: 46px;
+    height: 46px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #EF4444, #B91C1C);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    color: #fff;
+    flex-shrink: 0;
+    box-shadow: 0 6px 20px rgba(239,68,68,0.3);
+}
+.adm-login-brand-name {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #F1F5F9;
+    line-height: 1;
+}
+.adm-login-brand-tag {
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #EF4444;
+    margin-top: 0.2rem;
+}
+
+.adm-login-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #F1F5F9;
+    margin: 0 0 0.35rem;
+}
+.adm-login-subtitle {
+    font-size: 0.85rem;
+    color: #64748B;
+    margin: 0 0 2rem;
+}
+
+.adm-login-field {
+    margin-bottom: 1.25rem;
+}
+.adm-login-label {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #94A3B8;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 0.5rem;
+}
+.adm-login-input-wrap {
+    position: relative;
+}
+.adm-login-input-icon {
+    position: absolute;
+    left: 0.9rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #475569;
+    font-size: 0.85rem;
+    pointer-events: none;
+}
+.adm-login-input {
+    width: 100%;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
+    padding: 0.7rem 0.9rem 0.7rem 2.5rem;
+    color: #F1F5F9;
+    font-size: 0.9rem;
+    font-family: 'Inter', sans-serif;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    -webkit-appearance: none;
+}
+.adm-login-input:focus {
+    outline: none;
+    border-color: #EF4444;
+    box-shadow: 0 0 0 3px rgba(239,68,68,0.15);
+    background: rgba(255,255,255,0.06);
+}
+.adm-login-input::placeholder { color: #475569; }
+.adm-login-input.is-invalid { border-color: #EF4444 !important; }
+
+.adm-login-error {
+    background: rgba(239,68,68,0.12);
+    border: 1px solid rgba(239,68,68,0.3);
+    border-radius: 10px;
+    padding: 0.75rem 1rem;
+    font-size: 0.82rem;
+    color: #FCA5A5;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1.25rem;
+}
+
+.adm-login-btn {
+    width: 100%;
+    padding: 0.8rem 1.5rem;
+    background: linear-gradient(135deg, #EF4444, #B91C1C);
+    border: none;
+    border-radius: 10px;
+    color: #fff;
+    font-size: 0.9rem;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    box-shadow: 0 4px 16px rgba(239,68,68,0.3);
+    margin-top: 0.75rem;
+}
+.adm-login-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 24px rgba(239,68,68,0.4);
+}
+.adm-login-btn:active { transform: none; }
+
+.adm-login-footer {
+    text-align: center;
+    margin-top: 1.5rem;
+    font-size: 0.75rem;
+    color: #334155;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+/* ─── Admin Panel Layout ──────────────────────────────────── */
+
+:root {
+    --adm-sidebar-w:  240px;
+    --adm-topbar-h:   60px;
+    --adm-bg:         #0D1117;
+    --adm-card:       #1A2035;
+    --adm-sidebar-bg: #111827;
+    --adm-border:     rgba(255,255,255,0.08);
+    --adm-accent:     #EF4444;    /* Red — admin brand colour */
+    --adm-text:       #F1F5F9;
+    --adm-muted:      #64748B;
+    --adm-hover:      rgba(255,255,255,0.05);
+    --adm-radius:     10px;
+    --adm-transition: 0.18s ease;
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+}
+
+/* Admin body override (separate from user panel) */
+body.adm-body {
+    background: var(--adm-bg);
+    font-family: 'Inter', sans-serif;
+    color: var(--adm-text);
+    min-height: 100vh;
+}
+
+/* ── Sidebar ────────────────────────────────────────────────── */
+.adm-sidebar {
+    position: fixed;
+    left: 0; top: 0; bottom: 0;
+    width: var(--adm-sidebar-w);
+    background: var(--adm-sidebar-bg);
+    border-right: 1px solid var(--adm-border);
+    display: flex;
+    flex-direction: column;
+    z-index: 900;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.adm-sidebar-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1.25rem 1rem;
+    border-bottom: 1px solid var(--adm-border);
+    text-decoration: none;
+    flex-shrink: 0;
+}
+.adm-sidebar-brand-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #EF4444, #B91C1C);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.95rem;
+    color: #fff;
+    flex-shrink: 0;
+    box-shadow: 0 4px 12px rgba(239,68,68,0.3);
+}
+.adm-sidebar-brand-text { line-height: 1.2; }
+.adm-sidebar-brand-name {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--adm-text);
+    display: block;
+}
+.adm-sidebar-brand-tag {
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--adm-accent);
+}
+
+.adm-sidebar-nav {
+    flex: 1;
+    padding: 1rem 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+}
+
+.adm-nav-section {
+    font-size: 0.62rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #334155;
+    padding: 0.75rem 0.5rem 0.25rem;
+    margin-top: 0.5rem;
+}
+.adm-nav-section:first-child { margin-top: 0; }
+
+.adm-nav-link {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    padding: 0.55rem 0.75rem;
+    border-radius: var(--adm-radius);
+    color: var(--adm-muted);
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: all var(--adm-transition);
+    position: relative;
+}
+.adm-nav-link:hover {
+    background: var(--adm-hover);
+    color: var(--adm-text);
+    text-decoration: none;
+}
+.adm-nav-link.active {
+    background: rgba(239,68,68,0.12);
+    color: var(--adm-accent);
+    font-weight: 600;
+}
+.adm-nav-link.active::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 25%; bottom: 25%;
+    width: 3px;
+    background: var(--adm-accent);
+    border-radius: 0 3px 3px 0;
+}
+.adm-nav-icon {
+    width: 18px;
+    text-align: center;
+    font-size: 0.85rem;
+    flex-shrink: 0;
+}
+
+.adm-sidebar-footer {
+    padding: 0.75rem;
+    border-top: 1px solid var(--adm-border);
+    flex-shrink: 0;
+}
+.adm-admin-chip {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.6rem 0.75rem;
+    background: rgba(239,68,68,0.08);
+    border: 1px solid rgba(239,68,68,0.2);
+    border-radius: var(--adm-radius);
+}
+.adm-admin-avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #EF4444, #B91C1C);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #fff;
+    flex-shrink: 0;
+}
+.adm-admin-name {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--adm-text);
+    line-height: 1;
+}
+.adm-admin-role {
+    font-size: 0.65rem;
+    color: var(--adm-accent);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+/* ── Topbar ─────────────────────────────────────────────────── */
+.adm-topbar {
+    position: fixed;
+    top: 0;
+    left: var(--adm-sidebar-w);
+    right: 0;
+    height: var(--adm-topbar-h);
+    background: var(--adm-sidebar-bg);
+    border-bottom: 1px solid var(--adm-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 1.5rem;
+    z-index: 800;
+    gap: 1rem;
+}
+
+.adm-topbar-breadcrumb {
+    font-size: 0.82rem;
+    color: var(--adm-muted);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+.adm-topbar-breadcrumb strong {
+    color: var(--adm-text);
+    font-weight: 600;
+}
+
+.adm-topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.adm-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    background: rgba(239,68,68,0.12);
+    border: 1px solid rgba(239,68,68,0.25);
+    color: var(--adm-accent);
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 0.25em 0.75em;
+    border-radius: 99px;
+}
+
+.adm-logout-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: transparent;
+    border: 1px solid rgba(239,68,68,0.3);
+    border-radius: 8px;
+    color: var(--adm-accent);
+    font-size: 0.78rem;
+    font-weight: 600;
+    padding: 0.4rem 0.85rem;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    transition: all var(--adm-transition);
+    text-decoration: none;
+}
+.adm-logout-btn:hover {
+    background: rgba(239,68,68,0.12);
+    color: var(--adm-accent);
+    text-decoration: none;
+}
+
+/* ── Main Content ───────────────────────────────────────────── */
+.adm-main {
+    margin-left: var(--adm-sidebar-w);
+    margin-top: var(--adm-topbar-h);
+    padding: 1.75rem;
+    min-height: calc(100vh - var(--adm-topbar-h));
+}
+
+/* ── Success/info toast (reuse TempData) ────────────────────── */
+.adm-toast {
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    z-index: 9999;
+    background: #1A2035;
+    border: 1px solid rgba(16,185,129,0.4);
+    border-radius: var(--adm-radius);
+    padding: 0.9rem 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.85rem;
+    color: #F1F5F9;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    animation: adm-toast-in 0.3s ease;
+    max-width: 360px;
+}
+@keyframes adm-toast-in {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Responsive ─────────────────────────────────────────────── */
+@media (max-width: 767.98px) {
+    .adm-sidebar {
+        transform: translateX(-100%);
+        transition: transform 0.25s ease;
+    }
+    .adm-sidebar.open { transform: translateX(0); }
+    .adm-topbar { left: 0; }
+    .adm-main   { margin-left: 0; }
+}

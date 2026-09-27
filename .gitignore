@@ -1,0 +1,8 @@
+﻿.vs/
+bin/
+obj/
+*.csproj.user
+*.suo
+*.user
+*.bak
+*.fixed
